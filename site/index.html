@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lightmorphic Waveframe — free waveform video maker for Linux</title>
+<meta name="description" content="Free, open-source Linux app that turns a background image and an audio file into a YouTube-ready 1080p video with an animated waveform. Your audio is never re-encoded.">
+<link rel="canonical" href="https://waveframe.lightmorphic.co.uk/">
+<link rel="icon" href="static/icon.png" type="image/png">
+<meta property="og:title" content="Lightmorphic Waveframe">
+<meta property="og:description" content="Turn a picture and a piece of audio into a YouTube-ready waveform video. Free and open source, for Linux.">
+<meta property="og:image" content="https://waveframe.lightmorphic.co.uk/static/app-main.png">
+<meta property="og:url" content="https://waveframe.lightmorphic.co.uk/">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="static/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Lightmorphic Waveframe",
+  "operatingSystem": "Linux",
+  "applicationCategory": "MultimediaApplication",
+  "description": "Turns a background image and an audio file into a YouTube-ready 1080p video with an animated waveform overlay. The audio is copied bit-for-bit, never re-encoded.",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "GBP" },
+  "license": "https://www.gnu.org/licenses/gpl-3.0.html",
+  "url": "https://waveframe.lightmorphic.co.uk/",
+  "downloadUrl": "https://github.com/lightmorphic/waveframe/releases/latest",
+  "screenshot": "https://waveframe.lightmorphic.co.uk/static/app-main.png",
+  "softwareRequirements": "64-bit Linux. FFmpeg is bundled.",
+  "author": { "@type": "Organization", "name": "Lightmorphic", "url": "https://lightmorphic.co.uk" }
+}
+</script>
+</head>
+<body>
+
+<a class="skip-link" href="#content">Skip to content</a>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a class="brand" href="/">
+      <svg viewBox="0 0 48 48" width="34" height="34" aria-hidden="true">
+        <rect x="2" y="2" width="44" height="44" rx="10" fill="#111827"/>
+        <g fill="#FBC711">
+          <rect x="9"  y="20" width="4" height="8"  rx="2"/>
+          <rect x="16" y="14" width="4" height="20" rx="2"/>
+          <rect x="23" y="9"  width="4" height="30" rx="2"/>
+          <rect x="30" y="16" width="4" height="16" rx="2"/>
+          <rect x="37" y="21" width="4" height="6"  rx="2"/>
+        </g>
+      </svg>
+      <span>Waveframe</span>
+    </a>
+    <nav aria-label="Main">
+      <a href="#how">How it works</a>
+      <a href="#styles">Styles</a>
+      <a href="#download">Download</a>
+      <a href="#contact">Contact</a>
+      <a href="blog.html">Blog</a>
+    </nav>
+  </div>
+</header>
+
+<main id="content">
+
+  <section class="hero">
+    <div class="hero-copy">
+      <h1>Turn a picture and a piece of audio into a YouTube-ready video</h1>
+      <p class="lede">Waveframe is a free, open-source Linux app. Drop in a background
+      image and your audio, place the waveform where you want it, pick one of
+      20 animated styles, and export a 1080p video — with your audio copied in
+      <strong>bit-for-bit, never re-encoded</strong>.</p>
+      <div class="cta-row">
+        <a class="btn-primary" href="https://github.com/lightmorphic/waveframe/releases/latest">
+          Download for Linux
+          <span class="btn-sub">free AppImage — no installation</span>
+        </a>
+        <a class="btn-secondary" href="https://github.com/lightmorphic/waveframe">View the source on GitHub</a>
+      </div>
+    </div>
+    <figure class="hero-shot panel">
+      <img src="static/app-main.png" width="1360" height="900"
+           alt="The Waveframe window: a background image in a 16:9 preview with a resizable waveform box over it, file pickers, a colour panel and an export panel.">
+    </figure>
+  </section>
+
+  <section class="feature-grid" aria-label="Key features">
+    <div class="panel feature big">
+      <h2>Your audio, untouched</h2>
+      <p>Most video tools quietly re-encode audio and shave a little quality off.
+      Waveframe copies the original audio stream straight into the video file,
+      byte for byte — MP3, WAV, FLAC, AAC/M4A or OGG. The output format is chosen
+      so that's always possible: MP4 when your audio fits it, MKV otherwise.
+      YouTube accepts both. And if you override the format with one that would
+      force a re-encode, Waveframe says so plainly and refuses to degrade your
+      sound.</p>
+    </div>
+    <div class="panel feature">
+      <h2>20 animated styles</h2>
+      <p>Bars, mirrors, rings, scopes, grids, pulses — every style shown as a
+      moving preview, not just a name.</p>
+    </div>
+    <div class="panel feature">
+      <h2>Colour that matches</h2>
+      <p>The waveform colour is picked from your image automatically. Override
+      it any time with a picker or a hex code.</p>
+    </div>
+    <div class="panel feature">
+      <h2>Sharp by refusal</h2>
+      <p>Images below 1920 × 1080 are refused with a plain explanation rather
+      than upscaled into blur.</p>
+    </div>
+    <div class="panel feature">
+      <h2>Free and open</h2>
+      <p>GPL-3.0, no account, no tracking, nothing to pay. FFmpeg is bundled —
+      the AppImage just runs.</p>
+    </div>
+  </section>
+
+  <section id="how" class="how">
+    <h2>How it works</h2>
+    <ol class="steps">
+      <li class="panel"><span class="step-n" aria-hidden="true">1</span>
+        <h3>Add your two files</h3>
+        <p>A JPG or PNG background (1920 × 1080 or bigger) and your audio file.</p></li>
+      <li class="panel"><span class="step-n" aria-hidden="true">2</span>
+        <h3>Place and style the waveform</h3>
+        <p>Drag the box anywhere, resize it by its corners, choose a style and colour.
+        The preview shows exactly what the video will look like.</p></li>
+      <li class="panel"><span class="step-n" aria-hidden="true">3</span>
+        <h3>Export</h3>
+        <p>One click, choose where to save, and you have a 1080p video the same
+        length as your audio, ready to upload.</p></li>
+    </ol>
+  </section>
+
+  <section id="styles" class="styles">
+    <div class="styles-copy">
+      <h2>Twenty ways to move</h2>
+      <p>Classic spectrum bars, SoundCloud-style progress waveforms, neon
+      oscilloscopes, circular spectra, LED blocks, starbursts and more. Every
+      thumbnail in the picker animates, so you choose with your eyes, not by
+      guessing from a name.</p>
+    </div>
+    <figure class="panel">
+      <img src="static/app-styles.png" width="884" height="836" loading="lazy"
+           alt="The style picker showing twenty animated waveform thumbnails, including bars, rings, dots, grids and scopes.">
+    </figure>
+  </section>
+
+  <section id="download" class="download panel">
+    <h2>Download</h2>
+    <p>One file, no installation. Download, make it executable, run it.</p>
+    <a class="btn-primary" href="https://github.com/lightmorphic/waveframe/releases/latest">
+      Download the latest AppImage
+    </a>
+    <pre><code>chmod +x Lightmorphic-Waveframe-*.AppImage
+./Lightmorphic-Waveframe-*.AppImage</code></pre>
+    <p class="fine">64-bit Linux. Free under the GPL-3.0 licence —
+    <a href="https://github.com/lightmorphic/waveframe">source code on GitHub</a>.</p>
+  </section>
+
+  <section id="contact" class="contact">
+    <div class="contact-copy">
+      <h2>Get in touch</h2>
+      <p>Found a problem, or want a waveform style that isn't there yet?
+      Tell us — Waveframe gets better because people write in.</p>
+    </div>
+    <form class="panel" method="post" action="#">
+      <label for="cf-name">Your name</label>
+      <input id="cf-name" name="name" type="text" autocomplete="name" required>
+      <label for="cf-email">Your email</label>
+      <input id="cf-email" name="email" type="email" autocomplete="email" required>
+      <label for="cf-message">Message</label>
+      <textarea id="cf-message" name="message" rows="6" required></textarea>
+      <button type="submit" class="btn-primary">Send message</button>
+    </form>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <p>Lightmorphic Waveframe — free software under
+  <a href="https://www.gnu.org/licenses/gpl-3.0.html">GPL-3.0</a>.
+  Built by <a href="https://lightmorphic.co.uk">Lightmorphic</a>.
+  No cookies, no tracking scripts, nothing loaded from anywhere else.</p>
+</footer>
+
+</body>
+</html>
