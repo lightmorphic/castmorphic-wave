@@ -23,6 +23,7 @@ const els = {};
   'progress-text', 'cancel-btn', 'status-area',
   'update-banner', 'update-text', 'update-action', 'update-dismiss',
   'version-pill', 'version-label', 'version-state',
+  'analysis-progress', 'analysis-bar', 'analysis-fill', 'analysis-note',
 ].forEach((id) => {
   els[id.replace(/-([a-z])/g, (m, c) => c.toUpperCase())] = document.getElementById(id);
 });
@@ -156,31 +157,44 @@ function codecLabel(codec) {
   return CODEC_LABELS[codec] || codec.toUpperCase();
 }
 
+function showAnalysisProgress(percent, note) {
+  els.analysisProgress.hidden = false;
+  els.analysisFill.style.width = `${percent}%`;
+  els.analysisBar.setAttribute('aria-valuenow', String(percent));
+  els.analysisNote.textContent = note;
+}
+
 async function loadAudioFile(file) {
   if (state.exporting) return;
   const path = window.waveframe.pathForFile(file);
   setMsg(els.audioWarning, '');
-  setMsg(els.audioInfo, 'Reading the audio file.');
+  setMsg(els.audioInfo, '');
   els.audioName.textContent = '';
   state.audio = null;
   updateExportReadiness();
+  showAnalysisProgress(0, 'Opening the file.');
 
   const probe = await window.waveframe.probeAudio(path);
   if (probe.error) {
-    setMsg(els.audioInfo, '');
+    els.analysisProgress.hidden = true;
     setMsg(els.audioWarning, probe.error);
     return;
   }
 
-  const decoded = await window.waveframe.decodeAudio(path);
+  showAnalysisProgress(0,
+    'Reading the audio so the waveform can follow it. The Export button ' +
+    'unlocks when this finishes.');
+  const decoded = await window.waveframe.decodeAudio(path, probe.duration || 0);
   if (decoded.error) {
-    setMsg(els.audioInfo, '');
+    els.analysisProgress.hidden = true;
     setMsg(els.audioWarning, decoded.error);
     return;
   }
 
+  showAnalysisProgress(100, 'Preparing the waveform.');
   const pcm = new Float32Array(decoded.pcm);
   const analyzer = new Analyzer(pcm, decoded.sampleRate);
+  els.analysisProgress.hidden = true;
   previewAnalysisState.bands = null; // reset smoothing for the new track
   state.audio = { path, name: file.name, probe, analyzer };
 
@@ -676,6 +690,14 @@ function setVersionState(state, words) {
   els.versionPill.title = words;
   els.versionState.textContent = words;
 }
+
+window.waveframe.onAnalysisProgress(({ percent }) => {
+  if (!els.analysisProgress.hidden) {
+    showAnalysisProgress(percent,
+      `Reading the audio so the waveform can follow it, ${percent}%. ` +
+      'The Export button unlocks when this finishes.');
+  }
+});
 
 window.waveframe.appInfo().then(({ version, packaged }) => {
   els.versionLabel.textContent = `v${version}`;

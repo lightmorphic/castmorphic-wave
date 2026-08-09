@@ -113,6 +113,14 @@
         </div>
       </div>
       <input type="file" id="audio-input" accept=".mp3,.wav,.flac,.aac,.m4a,.ogg,.oga,.opus" hidden>
+      <div class="analysis-progress" id="analysis-progress" hidden>
+        <div class="progress-track" role="progressbar" id="analysis-bar"
+             aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"
+             aria-label="Reading the audio">
+          <div class="progress-fill" id="analysis-fill"></div>
+        </div>
+        <p class="hint" id="analysis-note"></p>
+      </div>
       <p class="msg info" id="audio-info" hidden></p>
       <p class="msg warning" id="audio-warning" hidden></p>
     </section>

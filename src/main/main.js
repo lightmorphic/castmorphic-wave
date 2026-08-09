@@ -110,12 +110,20 @@ ipcMain.handle('probe-audio', async (event, filePath) => {
   }
 });
 
-ipcMain.handle('decode-audio', async (event, filePath) => {
+ipcMain.handle('decode-audio', async (event, filePath, expectedSeconds) => {
   if (!isSupportedMediaFile(filePath, AUDIO_EXTENSIONS)) {
     return { error: ERROR_MESSAGES['bad-file'] };
   }
   try {
-    const { pcm, sampleRate } = await decodeForAnalysis(filePath);
+    const seconds = Number.isFinite(expectedSeconds) && expectedSeconds > 0 ? expectedSeconds : 0;
+    const { pcm, sampleRate } = await decodeForAnalysis(filePath, {
+      expectedSeconds: seconds,
+      onProgress: (percent) => {
+        if (!event.sender.isDestroyed()) {
+          event.sender.send('analysis-progress', { percent });
+        }
+      },
+    });
     // Transferred to the renderer as an ArrayBuffer.
     return {
       sampleRate,
