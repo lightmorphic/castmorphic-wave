@@ -1,0 +1,37 @@
+name: Release
+
+# Pushing a tag like v1.0.0 builds the AppImage and publishes a GitHub
+# Release with it attached. See docs/RUNBOOK.md for the release steps.
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build AppImage
+        run: npm run build
+
+      - name: Create release with the AppImage attached
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" dist/*.AppImage \
+            --title "Waveframe ${GITHUB_REF_NAME#v}" \
+            --notes "First release. Background image + audio in, YouTube-ready 1080p waveform video out. 20 animated styles, auto-matched colour, and your audio copied in bit-for-bit, never re-encoded. FFmpeg bundled; no installation needed."
