@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.4] - 2026-08-10
+
+- The Export button now says why it is locked, right underneath it:
+  which file is still missing, or that the image is below 1920 × 1080
+  (with its actual size). No more guessing whether the app is busy or
+  waiting on you.
+
 ## [1.0.3] - 2026-08-09
 
 - Loading an audio file now shows a real progress bar with a note

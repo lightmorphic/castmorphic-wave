@@ -159,6 +159,9 @@ async function smallImageCase() {
     check('plain-language size warning shown', /smaller than/.test(warning), warning);
     const disabled = await page.$eval('#export-btn', (el) => el.disabled);
     check('export stays blocked', disabled);
+    const reason = await page.textContent('#export-blocked');
+    check('the export button says why it is locked',
+      /Export is locked/.test(reason) && /1920/.test(reason), reason);
   } finally {
     await app.close();
   }

@@ -24,6 +24,7 @@ const els = {};
   'update-banner', 'update-text', 'update-action', 'update-dismiss',
   'version-pill', 'version-label', 'version-state',
   'analysis-progress', 'analysis-bar', 'analysis-fill', 'analysis-note',
+  'export-blocked',
 ].forEach((id) => {
   els[id.replace(/-([a-z])/g, (m, c) => c.toUpperCase())] = document.getElementById(id);
 });
@@ -429,6 +430,27 @@ function updateExportReadiness() {
     state.image && state.image.bigEnough && state.audio && !state.exporting,
   );
   els.exportBtn.disabled = !ready;
+
+  // Say WHY the button is locked, right next to the button.
+  const blocked = els.exportBlocked;
+  blocked.classList.remove('info', 'warning');
+  if (ready || state.exporting) {
+    blocked.hidden = true;
+  } else if (state.image && !state.image.bigEnough) {
+    blocked.classList.add('warning');
+    setMsg(blocked,
+      `Export is locked: the background image is ${state.image.width} × ${state.image.height}, ` +
+      'smaller than the 1920 × 1080 a sharp video needs. Choose a bigger image to unlock it.');
+  } else if (!state.image && !state.audio) {
+    blocked.classList.add('info');
+    setMsg(blocked, 'Export unlocks once you add a background image and an audio file.');
+  } else if (!state.image) {
+    blocked.classList.add('info');
+    setMsg(blocked, 'Export unlocks once you add a background image.');
+  } else {
+    blocked.classList.add('info');
+    setMsg(blocked, 'Export unlocks once you add an audio file.');
+  }
 }
 
 function boxToPixels() {
