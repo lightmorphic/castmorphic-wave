@@ -288,6 +288,8 @@ p { max-width: 65ch; }
   border-radius: var(--radius);
 }
 .contact button { display: block; width: 100%; margin-top: 1.25rem; }
+.contact-links p { margin: 0 0 0.75rem; }
+.contact-links p:last-child { margin-bottom: 0; }
 
 /* ---- Footer ---- */
 .site-footer {
