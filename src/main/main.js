@@ -73,6 +73,7 @@ function setupUpdates() {
     }
   };
   autoUpdater.on('update-available', (info) => send({ status: 'available', version: info.version }));
+  autoUpdater.on('update-not-available', () => send({ status: 'none' }));
   autoUpdater.on('download-progress', (p) => send({ status: 'downloading', percent: Math.round(p.percent) }));
   autoUpdater.on('update-downloaded', (info) => send({ status: 'downloaded', version: info.version }));
   // A failed check (offline, GitHub down) is not worth nagging about;
@@ -228,6 +229,11 @@ ipcMain.handle('export-cancel', async (event, id) => {
   }
   return { ok: true };
 });
+
+ipcMain.handle('app-info', async () => ({
+  version: app.getVersion(),
+  packaged: app.isPackaged,
+}));
 
 ipcMain.handle('update-download', async () => {
   if (!app.isPackaged) return { ok: false };

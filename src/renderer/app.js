@@ -22,6 +22,7 @@ const els = {};
   'container-note', 'export-btn', 'progress-area', 'progress-bar-wrap', 'progress-fill',
   'progress-text', 'cancel-btn', 'status-area',
   'update-banner', 'update-text', 'update-action', 'update-dismiss',
+  'version-pill', 'version-label', 'version-state',
 ].forEach((id) => {
   els[id.replace(/-([a-z])/g, (m, c) => c.toUpperCase())] = document.getElementById(id);
 });
@@ -669,6 +670,20 @@ els.cancelBtn.addEventListener('click', () => {
 
 const updateUi = { mode: null };
 
+// state: 'unknown' (grey), 'current' (green), 'attention' (amber)
+function setVersionState(state, words) {
+  els.versionPill.dataset.state = state;
+  els.versionPill.title = words;
+  els.versionState.textContent = words;
+}
+
+window.waveframe.appInfo().then(({ version, packaged }) => {
+  els.versionLabel.textContent = `v${version}`;
+  if (!packaged) {
+    setVersionState('unknown', 'Development run; update checks happen in the installed app');
+  }
+});
+
 function showUpdateBanner(text, buttonLabel, mode) {
   els.updateBanner.hidden = false;
   els.updateText.textContent = text;
@@ -678,6 +693,15 @@ function showUpdateBanner(text, buttonLabel, mode) {
 }
 
 window.waveframe.onUpdateState((state) => {
+  if (state.status === 'none') {
+    setVersionState('current', 'You are on the latest version');
+    return;
+  }
+  if (state.status === 'available' || state.status === 'downloading') {
+    setVersionState('attention', 'A newer version is available');
+  } else if (state.status === 'downloaded') {
+    setVersionState('attention', 'Update downloaded; restart to install it');
+  }
   if (state.status === 'available') {
     showUpdateBanner(`Waveframe ${state.version} is out. Updating is free and takes a minute.`,
       'Get the update', 'download');

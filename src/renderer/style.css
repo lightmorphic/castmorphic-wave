@@ -74,6 +74,31 @@ body {
 }
 .logo { flex-shrink: 0; }
 
+/* Version pill: background-coloured lozenge with an outline, per house
+   style. The dot is a quick read; the title and hidden text say it in
+   words. */
+.version-pill {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.3rem 0.85rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--muted-fg);
+}
+.version-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--muted-fg);
+}
+.version-pill[data-state="current"] .version-dot { background: var(--success); }
+.version-pill[data-state="attention"] .version-dot { background: var(--warning); }
+
 .layout {
   display: grid;
   grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);

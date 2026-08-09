@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.2] - 2026-08-09
+
+- The version number now sits in the top-right corner with a status dot:
+  green when you are on the latest version, amber when an update is
+  waiting, grey while checking. Hover it for the state in words.
+
 ## [1.0.1] - 2026-08-09
 
 - Waveframe now updates itself. It quietly checks GitHub for a newer

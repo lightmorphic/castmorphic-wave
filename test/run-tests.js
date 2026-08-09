@@ -206,6 +206,11 @@ async function boxAndPreviewCase() {
     }
     check('every style previews without errors', styleErrors.length === 0, styleErrors[0]);
 
+    // Version pill shows the app version.
+    await page.waitForFunction(() =>
+      /^v\d+\.\d+\.\d+$/.test(document.getElementById('version-label').textContent));
+    check('version pill shows the version', true);
+
     // Colour override via hex field.
     await page.fill('#colour-hex', '#03A8F3');
     await page.press('#colour-hex', 'Enter');
