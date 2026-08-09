@@ -6,7 +6,10 @@ const { contextBridge, ipcRenderer, webUtils } = require('electron');
 contextBridge.exposeInMainWorld('waveframe', {
   pathForFile: (file) => webUtils.getPathForFile(file),
   probeAudio: (filePath) => ipcRenderer.invoke('probe-audio', filePath),
-  decodeAudio: (filePath) => ipcRenderer.invoke('decode-audio', filePath),
+  decodeAudio: (filePath, expectedSeconds) => ipcRenderer.invoke('decode-audio', filePath, expectedSeconds),
+  onAnalysisProgress: (callback) => {
+    ipcRenderer.on('analysis-progress', (event, state) => callback(state));
+  },
   chooseExportPath: (opts) => ipcRenderer.invoke('choose-export-path', opts),
   exportStart: (opts) => ipcRenderer.invoke('export-start', opts),
   exportFrame: (id, frame) => ipcRenderer.invoke('export-frame', id, frame),

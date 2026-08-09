@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.3] - 2026-08-09
+
+- Loading an audio file now shows a real progress bar with a note
+  explaining what is happening and that the Export button unlocks when
+  it finishes. Before, long files just sat there looking stuck.
+
 ## [1.0.2] - 2026-08-09
 
 - The version number now sits in the top-right corner with a status dot:

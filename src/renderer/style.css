@@ -301,6 +301,11 @@ body {
 .dropzone + input + .msg { margin-top: 0.25rem; }
 #audio-drop { margin-top: 1rem; }
 
+/* ---- Audio analysis progress ---- */
+.analysis-progress { margin: 0.5rem 0 0; }
+.analysis-progress[hidden] { display: none; }
+.analysis-progress .hint { margin: 0.4rem 0 0; }
+
 /* ---- Messages ---- */
 .msg {
   font-size: 0.875rem;

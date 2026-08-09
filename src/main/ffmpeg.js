@@ -27,7 +27,7 @@ const MP4_SAFE_CODECS = new Set(['mp3', 'aac', 'alac']);
 const ANALYSIS_RATE = 22050;
 const MAX_ANALYSIS_BYTES = 950 * 1024 * 1024; // ~3 hours of audio
 
-function run(args, { collectStdout = false, maxStdout = Infinity } = {}) {
+function run(args, { collectStdout = false, maxStdout = Infinity, onStdoutBytes = null } = {}) {
   return new Promise((resolve, reject) => {
     const child = spawn(ffmpegPath(), args, {
       stdio: ['ignore', collectStdout ? 'pipe' : 'ignore', 'pipe'],
@@ -45,6 +45,7 @@ function run(args, { collectStdout = false, maxStdout = Infinity } = {}) {
           return;
         }
         stdoutChunks.push(chunk);
+        if (onStdoutBytes) onStdoutBytes(stdoutBytes);
       });
     }
     child.stderr.on('data', (chunk) => {
@@ -93,11 +94,25 @@ async function probeAudio(filePath) {
 // Decode the audio to mono float PCM for waveform analysis.
 // This decoded copy is only ever used for drawing; the export always
 // stream-copies the original file untouched.
-async function decodeForAnalysis(filePath) {
+async function decodeForAnalysis(filePath, { expectedSeconds = 0, onProgress = null } = {}) {
+  // Known duration means real percentages while decoding.
+  const expectedBytes = expectedSeconds > 0 ? expectedSeconds * ANALYSIS_RATE * 4 : 0;
+  let lastPercent = -1;
   const { code, stdout, stderr } = await run(
     ['-hide_banner', '-i', filePath, '-vn', '-sn', '-map', '0:a:0',
      '-ac', '1', '-ar', String(ANALYSIS_RATE), '-f', 'f32le', '-'],
-    { collectStdout: true, maxStdout: MAX_ANALYSIS_BYTES },
+    {
+      collectStdout: true,
+      maxStdout: MAX_ANALYSIS_BYTES,
+      onStdoutBytes: (bytes) => {
+        if (!onProgress || !expectedBytes) return;
+        const percent = Math.min(99, Math.floor((bytes / expectedBytes) * 100));
+        if (percent > lastPercent) {
+          lastPercent = percent;
+          onProgress(percent);
+        }
+      },
+    },
   );
   if (code !== 0 || !stdout || stdout.length === 0) {
     const err = new Error('decode-failed');

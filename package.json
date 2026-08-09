@@ -1,7 +1,7 @@
 {
   "name": "lightmorphic-waveframe",
   "productName": "Lightmorphic Waveframe",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Turn a background image and an audio file into a YouTube-ready video with an animated waveform overlay.",
   "main": "src/main/main.js",
   "desktopName": "lightmorphic-waveframe.desktop",
