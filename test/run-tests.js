@@ -1,7 +1,7 @@
 'use strict';
 
 // End-to-end test: drives the real app with Playwright, exports real
-// videos, and verifies each one — including that the audio stream in
+// videos, and verifies each one, including that the audio stream in
 // the output is bit-for-bit identical to the source file's.
 //
 // Run with: npm test
@@ -25,7 +25,7 @@ function check(label, ok, detail = '') {
     console.log(`  ok    ${label}`);
   } else {
     failed += 1;
-    console.log(`  FAIL  ${label}${detail ? ` — ${detail}` : ''}`);
+    console.log(`  FAIL  ${label}${detail ? ` :: ${detail}` : ''}`);
   }
 }
 

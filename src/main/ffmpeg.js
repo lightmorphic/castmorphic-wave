@@ -1,7 +1,7 @@
 'use strict';
 
 // Everything that talks to the bundled FFmpeg binary lives here.
-// FFmpeg is always spawned with an argument array — never a shell string —
+// FFmpeg is always spawned with an argument array, never a shell string,
 // so file names containing spaces, quotes or shell metacharacters are safe.
 
 const { spawn } = require('node:child_process');
@@ -91,7 +91,7 @@ async function probeAudio(filePath) {
 }
 
 // Decode the audio to mono float PCM for waveform analysis.
-// This decoded copy is only ever used for drawing — the export always
+// This decoded copy is only ever used for drawing; the export always
 // stream-copies the original file untouched.
 async function decodeForAnalysis(filePath) {
   const { code, stdout, stderr } = await run(

@@ -67,7 +67,7 @@ app.on('window-all-closed', () => {
 });
 
 // ---------------------------------------------------------------------------
-// IPC — every handler validates its inputs before touching the filesystem.
+// IPC: every handler validates its inputs before touching the filesystem.
 // ---------------------------------------------------------------------------
 
 ipcMain.handle('probe-audio', async (event, filePath) => {

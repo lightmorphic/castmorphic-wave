@@ -19,7 +19,7 @@ npm test
 ```
 
 This opens the real app several times, loads test images and audio, does
-five real exports, and checks each one — including that the audio in the
+five real exports, and checks each one, including that the audio in the
 output is bit-for-bit identical to the input. Everything should say `ok`.
 If anything says `FAIL`, don't release.
 
@@ -51,8 +51,8 @@ gh release create v1.0.1 dist/Lightmorphic-Waveframe-1.0.1-x86_64.AppImage \
   --title "Waveframe 1.0.1" --notes "What changed, in one or two lines."
 ```
 
-The website's download button always points at the *latest* release, so it
-updates itself — nothing to change on the site.
+The website's download button always points at the *latest* release, so
+there is nothing to change on the site.
 
 ## Roll back a bad release
 
@@ -73,7 +73,7 @@ To also undo the code changes on `main`:
 git revert HEAD --no-edit && git push
 ```
 
-(`git revert` adds a new commit that undoes the last one — history stays
+(`git revert` adds a new commit that undoes the last one, so history stays
 intact.)
 
 ## Where things live
@@ -83,13 +83,13 @@ intact.)
 | App code | `src/` (main process in `src/main/`, window UI in `src/renderer/`) |
 | Website | `site/` (one page, self-contained) |
 | Tests | `test/run-tests.js` and `test/appimage-smoke.js` |
-| Screenshots | `docs/shots/` — regenerate with `node scripts/screenshots.js` |
-| App icon | `assets/icon.png` — regenerate with `npx electron scripts/make-icon.js` |
+| Screenshots | `docs/shots/` (regenerate with `node scripts/screenshots.js`) |
+| App icon | `assets/icon.png` (regenerate with `npx electron scripts/make-icon.js`) |
 
 ## If an export fails for a user
 
 The app shows plain-language messages for every failure it knows about
 (unreadable file, image too small, disk full, and so on). If someone
 reports a failure the app couldn't explain, ask for: the audio format,
-the image size, and roughly how long the audio is — then reproduce with
+the image size, and roughly how long the audio is, then reproduce with
 `npm start`.

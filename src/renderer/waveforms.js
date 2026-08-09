@@ -2,7 +2,7 @@
 
 (() => {
 // The 20 waveform styles. Every style is a pure draw function:
-// (ctx, w, h, d, color, t) — where d is one frame of analysis data.
+// (ctx, w, h, d, color, t), where d is one frame of analysis data.
 // Styles draw on a transparent canvas; the caller clears first.
 // No randomness: the same audio frame always draws the same picture,
 // so exports are reproducible.
@@ -486,5 +486,5 @@ const STYLES = [
   },
 ];
 
-window.WFStyles = { STYLES, rgba, hexToRgb };
+window.WFStyles = { STYLES };
 })();

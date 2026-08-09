@@ -202,5 +202,5 @@ function demoFrame(t) {
   };
 }
 
-window.WFAnalysis = { Analyzer, demoFrame, BAND_COUNT, WAVE_POINTS, PEAK_COLUMNS };
+window.WFAnalysis = { Analyzer, demoFrame };
 })();
