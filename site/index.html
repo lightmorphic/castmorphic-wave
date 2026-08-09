@@ -3,16 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lightmorphic Waveframe — free waveform video maker for Linux</title>
+<title>Lightmorphic Waveframe: free waveform video maker for Linux</title>
 <meta name="description" content="Free, open-source Linux app that turns a background image and an audio file into a YouTube-ready 1080p video with an animated waveform. Your audio is never re-encoded.">
 <link rel="canonical" href="https://waveframe.lightmorphic.co.uk/">
-<link rel="icon" href="static/icon.png" type="image/png">
+<link rel="icon" href="images/waveframe-icon.png" type="image/png">
 <meta property="og:title" content="Lightmorphic Waveframe">
 <meta property="og:description" content="Turn a picture and a piece of audio into a YouTube-ready waveform video. Free and open source, for Linux.">
-<meta property="og:image" content="https://waveframe.lightmorphic.co.uk/static/app-main.png">
+<meta property="og:image" content="https://waveframe.lightmorphic.co.uk/images/waveframe-app-window.png">
 <meta property="og:url" content="https://waveframe.lightmorphic.co.uk/">
 <meta property="og:type" content="website">
-<link rel="stylesheet" href="static/style.css">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lightmorphic Waveframe">
+<meta name="twitter:description" content="Turn a picture and a piece of audio into a YouTube-ready waveform video. Free and open source, for Linux.">
+<meta name="twitter:image" content="https://waveframe.lightmorphic.co.uk/images/waveframe-app-window.png">
+<link rel="stylesheet" href="style.css">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -25,9 +29,42 @@
   "license": "https://www.gnu.org/licenses/gpl-3.0.html",
   "url": "https://waveframe.lightmorphic.co.uk/",
   "downloadUrl": "https://github.com/lightmorphic/waveframe/releases/latest",
-  "screenshot": "https://waveframe.lightmorphic.co.uk/static/app-main.png",
+  "screenshot": "https://waveframe.lightmorphic.co.uk/images/waveframe-app-window.png",
   "softwareRequirements": "64-bit Linux. FFmpeg is bundled.",
   "author": { "@type": "Organization", "name": "Lightmorphic", "url": "https://lightmorphic.co.uk" }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Does Waveframe change my audio?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. The original audio stream is copied into the video byte for byte. Waveframe never re-encodes, resamples or trims it, and it picks the output format (MP4 or MKV) specifically so that copy is always possible." }
+    },
+    {
+      "@type": "Question",
+      "name": "Which file formats does Waveframe accept?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Images: JPG or PNG, at least 1920 by 1080 pixels. Audio: MP3, WAV, FLAC, AAC/M4A or OGG. The exported video is 1920 by 1080 H.264, in an MP4 or MKV file." }
+    },
+    {
+      "@type": "Question",
+      "name": "What does Waveframe cost?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Nothing. Waveframe is free software under the GPL-3.0 licence. There is no account, no tracking and no paid tier, and the full source code is public on GitHub." }
+    },
+    {
+      "@type": "Question",
+      "name": "Will YouTube accept the exported video?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes. The export is 1080p H.264 video in an MP4 or MKV container, both of which YouTube accepts, and the video length matches your audio exactly." }
+    },
+    {
+      "@type": "Question",
+      "name": "Which Linux distributions does it run on?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Any 64-bit Linux distribution that can run AppImages, which covers all the common ones. FFmpeg is bundled inside the AppImage, so there is nothing else to install." }
+    }
+  ]
 }
 </script>
 </head>
@@ -54,6 +91,7 @@
       <a href="#how">How it works</a>
       <a href="#styles">Styles</a>
       <a href="#download">Download</a>
+      <a href="#faq">FAQ</a>
       <a href="#contact">Contact</a>
       <a href="blog.html">Blog</a>
     </nav>
@@ -67,18 +105,18 @@
       <h1>Turn a picture and a piece of audio into a YouTube-ready video</h1>
       <p class="lede">Waveframe is a free, open-source Linux app. Drop in a background
       image and your audio, place the waveform where you want it, pick one of
-      20 animated styles, and export a 1080p video — with your audio copied in
+      20 animated styles, and export a 1080p video. Your audio is copied in
       <strong>bit-for-bit, never re-encoded</strong>.</p>
       <div class="cta-row">
         <a class="btn-primary" href="https://github.com/lightmorphic/waveframe/releases/latest">
           Download for Linux
-          <span class="btn-sub">free AppImage — no installation</span>
+          <span class="btn-sub">free AppImage, no installation</span>
         </a>
         <a class="btn-secondary" href="https://github.com/lightmorphic/waveframe">View the source on GitHub</a>
       </div>
     </div>
     <figure class="hero-shot panel">
-      <img src="static/app-main.png" width="1360" height="900"
+      <img src="images/waveframe-app-window.webp" width="1360" height="900"
            alt="The Waveframe window: a background image in a 16:9 preview with a resizable waveform box over it, file pickers, a colour panel and an export panel.">
     </figure>
   </section>
@@ -88,16 +126,16 @@
       <h2>Your audio, untouched</h2>
       <p>Most video tools quietly re-encode audio and shave a little quality off.
       Waveframe copies the original audio stream straight into the video file,
-      byte for byte — MP3, WAV, FLAC, AAC/M4A or OGG. The output format is chosen
-      so that's always possible: MP4 when your audio fits it, MKV otherwise.
-      YouTube accepts both. And if you override the format with one that would
-      force a re-encode, Waveframe says so plainly and refuses to degrade your
-      sound.</p>
+      byte for byte, whether that stream is MP3, WAV, FLAC, AAC/M4A or OGG. The
+      output format is chosen so that copy is always possible: MP4 when your
+      audio fits it, MKV otherwise. YouTube accepts both. If you override the
+      format with one that would force a re-encode, Waveframe says so plainly
+      and refuses to degrade your sound.</p>
     </div>
     <div class="panel feature">
       <h2>20 animated styles</h2>
-      <p>Bars, mirrors, rings, scopes, grids, pulses — every style shown as a
-      moving preview, not just a name.</p>
+      <p>Bars, mirrors, rings, scopes, grids and pulses. Every style appears in
+      the picker as a moving preview, so you choose by eye.</p>
     </div>
     <div class="panel feature">
       <h2>Colour that matches</h2>
@@ -111,8 +149,8 @@
     </div>
     <div class="panel feature">
       <h2>Free and open</h2>
-      <p>GPL-3.0, no account, no tracking, nothing to pay. FFmpeg is bundled —
-      the AppImage just runs.</p>
+      <p>GPL-3.0, no account, no tracking, nothing to pay. FFmpeg is bundled,
+      so the AppImage just runs.</p>
     </div>
   </section>
 
@@ -138,11 +176,11 @@
       <h2>Twenty ways to move</h2>
       <p>Classic spectrum bars, SoundCloud-style progress waveforms, neon
       oscilloscopes, circular spectra, LED blocks, starbursts and more. Every
-      thumbnail in the picker animates, so you choose with your eyes, not by
-      guessing from a name.</p>
+      thumbnail in the picker animates, so you choose with your eyes rather
+      than guessing from a name.</p>
     </div>
     <figure class="panel">
-      <img src="static/app-styles.png" width="884" height="836" loading="lazy"
+      <img src="images/waveframe-style-picker.webp" width="849" height="598" loading="lazy"
            alt="The style picker showing twenty animated waveform thumbnails, including bars, rings, dots, grids and scopes.">
     </figure>
   </section>
@@ -155,15 +193,51 @@
     </a>
     <pre><code>chmod +x Lightmorphic-Waveframe-*.AppImage
 ./Lightmorphic-Waveframe-*.AppImage</code></pre>
-    <p class="fine">64-bit Linux. Free under the GPL-3.0 licence —
-    <a href="https://github.com/lightmorphic/waveframe">source code on GitHub</a>.</p>
+    <p class="fine">64-bit Linux. Free under the GPL-3.0 licence.
+    <a href="https://github.com/lightmorphic/waveframe">Source code on GitHub</a>.</p>
+  </section>
+
+  <section id="faq" class="faq">
+    <h2>Questions people ask</h2>
+    <dl>
+      <div class="panel">
+        <dt>Does Waveframe change my audio?</dt>
+        <dd>No. The original audio stream is copied into the video byte for byte.
+        Waveframe never re-encodes, resamples or trims it, and it picks the output
+        format (MP4 or MKV) specifically so that copy is always possible.</dd>
+      </div>
+      <div class="panel">
+        <dt>Which file formats does it accept?</dt>
+        <dd>Images: JPG or PNG, at least 1920 × 1080. Audio: MP3, WAV, FLAC,
+        AAC/M4A or OGG. The exported video is 1920 × 1080 H.264, in an MP4 or
+        MKV file.</dd>
+      </div>
+      <div class="panel">
+        <dt>What does it cost?</dt>
+        <dd>Nothing. Waveframe is free software under the GPL-3.0 licence. No
+        account, no tracking, no paid tier, and the full source code is public
+        on GitHub.</dd>
+      </div>
+      <div class="panel">
+        <dt>Will YouTube accept the exported video?</dt>
+        <dd>Yes. The export is 1080p H.264 video in an MP4 or MKV container,
+        both of which YouTube accepts, and the video length matches your audio
+        exactly.</dd>
+      </div>
+      <div class="panel">
+        <dt>Which Linux distributions does it run on?</dt>
+        <dd>Any 64-bit distribution that can run AppImages, which covers all the
+        common ones. FFmpeg is bundled inside, so there is nothing else to
+        install.</dd>
+      </div>
+    </dl>
   </section>
 
   <section id="contact" class="contact">
     <div class="contact-copy">
       <h2>Get in touch</h2>
       <p>Found a problem, or want a waveform style that isn't there yet?
-      Tell us — Waveframe gets better because people write in.</p>
+      Tell us. Waveframe gets better because people write in.</p>
     </div>
     <form class="panel" method="post" action="#">
       <label for="cf-name">Your name</label>
@@ -179,8 +253,8 @@
 </main>
 
 <footer class="site-footer">
-  <p>Lightmorphic Waveframe — free software under
-  <a href="https://www.gnu.org/licenses/gpl-3.0.html">GPL-3.0</a>.
+  <p>Lightmorphic Waveframe is free software under the
+  <a href="https://www.gnu.org/licenses/gpl-3.0.html">GPL-3.0 licence</a>.
   Built by <a href="https://lightmorphic.co.uk">Lightmorphic</a>.
   No cookies, no tracking scripts, nothing loaded from anywhere else.</p>
 </footer>

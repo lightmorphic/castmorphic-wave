@@ -158,7 +158,7 @@ async function loadAudioFile(file) {
   if (state.exporting) return;
   const path = window.waveframe.pathForFile(file);
   setMsg(els.audioWarning, '');
-  setMsg(els.audioInfo, 'Reading the audio…');
+  setMsg(els.audioInfo, 'Reading the audio file.');
   els.audioName.textContent = '';
   state.audio = null;
   updateExportReadiness();
@@ -185,7 +185,7 @@ async function loadAudioFile(file) {
   els.audioName.textContent = `✓ ${file.name}`;
   let info = `${codecLabel(probe.codec)}, ${formatDuration(analyzer.duration)}.`;
   if (probe.extraAudioStreams > 0) {
-    info += ` This file has ${probe.extraAudioStreams + 1} audio tracks — the first one will be used.`;
+    info += ` This file has ${probe.extraAudioStreams + 1} audio tracks. The first one will be used.`;
   }
   setMsg(els.audioInfo, info);
 
@@ -386,8 +386,8 @@ function updateContainerNote() {
   const label = codecLabel(probe.codec);
   if (state.containerChoice === 'auto') {
     note.textContent = probe.mp4Compatible
-      ? `Will save as MP4 — ${label} audio fits MP4 directly, so it is copied in untouched.`
-      : `Will save as MKV — ${label} audio cannot go into an MP4 without re-encoding it, and ` +
+      ? `Will save as MP4. ${label} audio fits MP4 directly, so it is copied in untouched.`
+      : `Will save as MKV. ${label} audio cannot go into an MP4 without re-encoding it, and ` +
         'Waveframe never touches your audio. YouTube accepts MKV uploads.';
   } else if (state.containerChoice === 'mp4' && !probe.mp4Compatible) {
     note.classList.remove('info');
@@ -504,7 +504,7 @@ async function runExport() {
       const remaining = Math.max(0, Math.round((totalFrames - f - 1) / rate));
       els.progressText.textContent =
         `Drawing frame ${(f + 1).toLocaleString()} of ${totalFrames.toLocaleString()}` +
-        (f > 30 ? ` — about ${formatDuration(remaining)} left` : '');
+        (f > 30 ? `, about ${formatDuration(remaining)} left` : '');
     }
   }
 
@@ -520,7 +520,7 @@ async function runExport() {
     return;
   }
 
-  els.progressText.textContent = 'Finishing the video file…';
+  els.progressText.textContent = 'Finishing the video file.';
   els.cancelBtn.disabled = true;
   const ended = await window.waveframe.exportEnd(state.exporting.id);
   finishExport();

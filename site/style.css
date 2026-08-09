@@ -249,6 +249,17 @@ p { max-width: 65ch; }
 }
 .fine { font-size: 0.875rem; color: var(--muted-fg); }
 
+/* ---- FAQ ---- */
+.faq { padding: 3.5rem 0 0; }
+.faq dl {
+  margin: 1.25rem 0 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+.faq dt { font-weight: 700; margin-bottom: 0.4rem; }
+.faq dd { margin: 0; font-size: 0.9375rem; }
+
 /* ---- Contact ---- */
 .contact {
   display: grid;
