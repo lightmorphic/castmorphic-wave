@@ -1,0 +1,27 @@
+{
+  "name": "lightmorphic-waveframe",
+  "productName": "Lightmorphic Waveframe",
+  "version": "1.0.0",
+  "description": "Turn a background image and an audio file into a YouTube-ready video with an animated waveform overlay.",
+  "main": "src/main/main.js",
+  "license": "GPL-3.0-or-later",
+  "author": "Lightmorphic <claude@charlie.cx>",
+  "homepage": "https://waveframe.lightmorphic.co.uk",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lightmorphic/waveframe.git"
+  },
+  "scripts": {
+    "start": "electron .",
+    "test": "node test/run-tests.js",
+    "build": "electron-builder --linux AppImage"
+  },
+  "dependencies": {
+    "ffmpeg-static": "^5.3.0"
+  },
+  "devDependencies": {
+    "electron": "^43.3.0",
+    "electron-builder": "^26.15.3",
+    "playwright": "^1.62.1"
+  }
+}
