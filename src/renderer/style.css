@@ -111,6 +111,30 @@ body {
   margin: 0 0 1rem;
 }
 
+/* ---- Update banner ---- */
+.update-banner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  max-width: 1400px;
+  margin: 0 auto 1.5rem;
+  background: var(--info-bg);
+  color: var(--info);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.6rem 1rem;
+}
+.update-banner[hidden] { display: none; }
+.update-banner p { margin: 0; flex: 1; font-size: 0.9375rem; }
+.update-banner .btn-secondary[hidden] { display: none; }
+.update-dismiss {
+  background: none;
+  border: none;
+  color: inherit;
+  padding: 0.35rem;
+  display: inline-flex;
+}
+
 /* ---- Preview stage ---- */
 .stage-wrap { container-type: inline-size; }
 .stage {

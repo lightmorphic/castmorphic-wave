@@ -21,6 +21,7 @@ const els = {};
   'colour-auto', 'auto-swatch', 'colour-picker', 'colour-hex', 'container-select',
   'container-note', 'export-btn', 'progress-area', 'progress-bar-wrap', 'progress-fill',
   'progress-text', 'cancel-btn', 'status-area',
+  'update-banner', 'update-text', 'update-action', 'update-dismiss',
 ].forEach((id) => {
   els[id.replace(/-([a-z])/g, (m, c) => c.toUpperCase())] = document.getElementById(id);
 });
@@ -660,6 +661,54 @@ els.cancelBtn.addEventListener('click', () => {
     state.exporting.cancelled = true;
     els.cancelBtn.disabled = true;
   }
+});
+
+// ---------------------------------------------------------------------------
+// App updates: a quiet banner, nothing downloads until asked
+// ---------------------------------------------------------------------------
+
+const updateUi = { mode: null };
+
+function showUpdateBanner(text, buttonLabel, mode) {
+  els.updateBanner.hidden = false;
+  els.updateText.textContent = text;
+  els.updateAction.hidden = !buttonLabel;
+  if (buttonLabel) els.updateAction.textContent = buttonLabel;
+  updateUi.mode = mode;
+}
+
+window.waveframe.onUpdateState((state) => {
+  if (state.status === 'available') {
+    showUpdateBanner(`Waveframe ${state.version} is out. Updating is free and takes a minute.`,
+      'Get the update', 'download');
+  } else if (state.status === 'downloading') {
+    showUpdateBanner(`Downloading the update, ${state.percent}%.`, null, null);
+  } else if (state.status === 'downloaded') {
+    showUpdateBanner(`Update ready. Waveframe ${state.version} will be installed when the app restarts.`,
+      'Restart now', 'install');
+  } else if (state.status === 'error' && updateUi.mode === null && !els.updateBanner.hidden) {
+    // Only mention errors if the user was mid-update; a failed background
+    // check just tries again later.
+    showUpdateBanner('The update could not be downloaded. It will try again later.', null, null);
+  }
+});
+
+els.updateAction.addEventListener('click', async () => {
+  if (updateUi.mode === 'download') {
+    els.updateAction.hidden = true;
+    els.updateText.textContent = 'Starting the download.';
+    updateUi.mode = null;
+    await window.waveframe.updateDownload();
+  } else if (updateUi.mode === 'install') {
+    const result = await window.waveframe.updateInstall();
+    if (result.error) {
+      els.updateText.textContent = result.error;
+    }
+  }
+});
+
+els.updateDismiss.addEventListener('click', () => {
+  els.updateBanner.hidden = true;
 });
 
 // Drops anywhere outside the two dropzones must not make Chromium
