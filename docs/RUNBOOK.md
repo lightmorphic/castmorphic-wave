@@ -41,15 +41,22 @@ came through untouched.
 
 ## Publish a release
 
+Releases are automated. Pushing a version tag makes GitHub build the
+AppImage and publish the release with it attached (the workflow lives in
+`.github/workflows/release.yml`).
+
 1. Bump the `"version"` in `package.json` (e.g. `1.0.0` → `1.0.1`).
 2. Run the tests, then the build, then the smoke test (all above).
-3. Commit and push, then create the release with the AppImage attached:
+3. Update the release notes line in `.github/workflows/release.yml` if
+   the standard text no longer fits, then:
 
 ```bash
 git add -A && git commit -m "Release v1.0.1" && git push
-gh release create v1.0.1 dist/Lightmorphic-Waveframe-1.0.1-x86_64.AppImage \
-  --title "Waveframe 1.0.1" --notes "What changed, in one or two lines."
+git tag -a v1.0.1 -m "Waveframe 1.0.1" && git push origin v1.0.1
 ```
+
+A few minutes later the release appears on the Releases page. Check it at
+https://github.com/lightmorphic/waveframe/releases
 
 The website's download button always points at the *latest* release, so
 there is nothing to change on the site.
