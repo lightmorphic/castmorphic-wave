@@ -1,6 +1,14 @@
 # Changelog
 
-## 1.0.0 (2026-08-09)
+## [1.0.1] - 2026-08-09
+
+- Waveframe now updates itself. It quietly checks GitHub for a newer
+  release at launch and every few hours; if one exists, a banner offers
+  it. Nothing downloads until you choose, and the update installs when
+  the app restarts. (Installs of 1.0.0 predate this and need one last
+  manual download.)
+
+## [1.0.0] - 2026-08-09
 
 First release.
 

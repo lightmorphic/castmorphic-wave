@@ -13,8 +13,10 @@ ships as a new release and the old one is removed from the Releases page.
 
 ## What Waveframe does and does not do
 
-- Waveframe is a local desktop app. It makes no network connections:
-  no updates check, no telemetry, no external fonts or scripts.
+- Waveframe is a local desktop app. Its only network activity is an
+  update check against this repository's GitHub Releases page, at launch
+  and every few hours. An update downloads only when you click for it.
+  No telemetry, no other connections, no external fonts or scripts.
 - It reads exactly two files you choose (an image and an audio file),
   and writes one video file where you tell it to.
 - FFmpeg is bundled and is always run with argument arrays, never

@@ -1,6 +1,7 @@
 'use strict';
 
 const { app, BrowserWindow, dialog, ipcMain, shell } = require('electron');
+const { autoUpdater } = require('electron-updater');
 const fs = require('node:fs');
 const path = require('node:path');
 const {
@@ -59,7 +60,34 @@ function createWindow() {
   });
 }
 
-app.whenReady().then(createWindow);
+// Update checks poll GitHub Releases (the repo in package.json's publish
+// block) and nothing else. Nothing downloads until the user asks.
+function setupUpdates() {
+  if (!app.isPackaged) return;
+  autoUpdater.autoDownload = false;
+  autoUpdater.autoInstallOnAppQuit = true;
+
+  const send = (state) => {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('update-state', state);
+    }
+  };
+  autoUpdater.on('update-available', (info) => send({ status: 'available', version: info.version }));
+  autoUpdater.on('download-progress', (p) => send({ status: 'downloading', percent: Math.round(p.percent) }));
+  autoUpdater.on('update-downloaded', (info) => send({ status: 'downloaded', version: info.version }));
+  // A failed check (offline, GitHub down) is not worth nagging about;
+  // the renderer decides whether the user was mid-download.
+  autoUpdater.on('error', () => send({ status: 'error' }));
+
+  const check = () => autoUpdater.checkForUpdates().catch(() => {});
+  setTimeout(check, 5000);
+  setInterval(check, 4 * 60 * 60 * 1000);
+}
+
+app.whenReady().then(() => {
+  createWindow();
+  setupUpdates();
+});
 
 app.on('window-all-closed', () => {
   if (currentExport) currentExport.cancel();
@@ -198,6 +226,21 @@ ipcMain.handle('export-cancel', async (event, id) => {
     // A cancelled export leaves a useless part-written file behind.
     fs.rm(job.outPath, { force: true }, () => {});
   }
+  return { ok: true };
+});
+
+ipcMain.handle('update-download', async () => {
+  if (!app.isPackaged) return { ok: false };
+  autoUpdater.downloadUpdate().catch(() => {});
+  return { ok: true };
+});
+
+ipcMain.handle('update-install', async () => {
+  if (!app.isPackaged) return { ok: false };
+  if (currentExport) {
+    return { error: 'An export is running. Let it finish (or cancel it) before restarting to update.' };
+  }
+  autoUpdater.quitAndInstall();
   return { ok: true };
 });
 

@@ -13,4 +13,9 @@ contextBridge.exposeInMainWorld('waveframe', {
   exportEnd: (id) => ipcRenderer.invoke('export-end', id),
   exportCancel: (id) => ipcRenderer.invoke('export-cancel', id),
   showInFolder: (filePath) => ipcRenderer.invoke('show-in-folder', filePath),
+  updateDownload: () => ipcRenderer.invoke('update-download'),
+  updateInstall: () => ipcRenderer.invoke('update-install'),
+  onUpdateState: (callback) => {
+    ipcRenderer.on('update-state', (event, state) => callback(state));
+  },
 });
