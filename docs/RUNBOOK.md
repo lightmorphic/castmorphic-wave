@@ -88,7 +88,7 @@ intact.)
 | What | Where |
 |---|---|
 | App code | `src/` (main process in `src/main/`, window UI in `src/renderer/`) |
-| Website | `site/` (one page, self-contained) |
+| Website | `site/` (one page, self-contained; auto-deploys to GitHub Pages when pushed) |
 | Tests | `test/run-tests.js` and `test/appimage-smoke.js` |
 | Screenshots | `docs/shots/` (regenerate with `node scripts/screenshots.js`) |
 | App icon | `assets/icon.png` (regenerate with `npx electron scripts/make-icon.js`) |
