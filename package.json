@@ -16,6 +16,23 @@
     "test": "node test/run-tests.js",
     "build": "electron-builder --linux AppImage"
   },
+  "build": {
+    "appId": "uk.co.lightmorphic.waveframe",
+    "artifactName": "Lightmorphic-Waveframe-${version}-${arch}.AppImage",
+    "files": [
+      "src/**/*",
+      "assets/icon.png"
+    ],
+    "asarUnpack": [
+      "node_modules/ffmpeg-static/**"
+    ],
+    "linux": {
+      "target": "AppImage",
+      "icon": "assets/icon.png",
+      "category": "AudioVideo",
+      "synopsis": "Turn an image and audio into a YouTube-ready waveform video"
+    }
+  },
   "dependencies": {
     "ffmpeg-static": "^5.3.0"
   },
