@@ -36,6 +36,10 @@ chmod +x Lightmorphic-Waveframe-*.AppImage
 
 No installation, no dependencies. FFmpeg is bundled inside.
 
+Once installed, Waveframe checks for new versions itself and offers them in
+a banner when one is out. Nothing downloads until you choose, and the
+version pill in the top-right corner shows what you are running.
+
 ## Building from source
 
 You need Node.js 20+ on Linux.
