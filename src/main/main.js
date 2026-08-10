@@ -4,6 +4,12 @@ const { app, BrowserWindow, dialog, ipcMain, shell } = require('electron');
 const { autoUpdater } = require('electron-updater');
 const fs = require('node:fs');
 const path = require('node:path');
+
+// When the AppImage is launched from a desktop icon, stdout/stderr may be
+// dead pipes; an unhandled EPIPE from any stray console write would kill
+// the whole app (seen with electron-updater's own logging).
+if (process.stdout) process.stdout.on('error', () => {});
+if (process.stderr) process.stderr.on('error', () => {});
 const {
   probeAudio,
   decodeForAnalysis,
@@ -64,6 +70,9 @@ function createWindow() {
 // block) and nothing else. Nothing downloads until the user asks.
 function setupUpdates() {
   if (!app.isPackaged) return;
+  // No console logging from the updater: it writes to stdout, which is
+  // not safe to assume exists for a desktop-launched AppImage.
+  autoUpdater.logger = null;
   autoUpdater.autoDownload = false;
   autoUpdater.autoInstallOnAppQuit = true;
 
