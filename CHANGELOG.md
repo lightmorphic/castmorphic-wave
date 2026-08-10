@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.0.5] - 2026-08-10
+
+- Fixed a crash ("Error: write EPIPE") that could appear while an update
+  was downloading, when the app had been started from a desktop icon
+  rather than a terminal. If version 1.0.4 shows that error box while
+  fetching this update, close the box; if the update then does not
+  finish, download 1.0.5 once from the Releases page and it will not
+  happen again.
+
 ## [1.0.4] - 2026-08-10
 
 - The Export button now says why it is locked, right underneath it:
