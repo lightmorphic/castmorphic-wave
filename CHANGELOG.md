@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.0.6] - 2026-08-10
+
+- The update indicator is now a single small dot next to the app name,
+  matching the style used across Lightmorphic's other tools: green when
+  you are current, amber with a download icon when an update is out
+  (click it to fetch), a progress ring while it downloads, then green
+  with a restart icon when it is ready (click to restart). Replaces the
+  separate version pill and banner.
+
 ## [1.0.5] - 2026-08-10
 
 - Fixed a crash ("Error: write EPIPE") that could appear while an update

@@ -209,10 +209,13 @@ async function boxAndPreviewCase() {
     }
     check('every style previews without errors', styleErrors.length === 0, styleErrors[0]);
 
-    // Version pill shows the app version.
+    // Update widget's version label is wired up (the widget itself stays
+    // hidden in this dev run: no packaged app means no update checks).
     await page.waitForFunction(() =>
-      /^v\d+\.\d+\.\d+$/.test(document.getElementById('version-label').textContent));
-    check('version pill shows the version', true);
+      /^v\d+\.\d+\.\d+$/.test(document.getElementById('update-widget-version').textContent));
+    check('update widget shows the running version', true);
+    const widgetHiddenInDev = await page.$eval('#update-widget', (el) => el.hidden);
+    check('update widget stays hidden with no update check to report', widgetHiddenInDev);
 
     // Colour override via hex field.
     await page.fill('#colour-hex', '#03A8F3');
