@@ -21,8 +21,7 @@ const els = {};
   'colour-auto', 'auto-swatch', 'colour-picker', 'colour-hex', 'container-select',
   'container-note', 'export-btn', 'progress-area', 'progress-bar-wrap', 'progress-fill',
   'progress-text', 'cancel-btn', 'status-area',
-  'update-banner', 'update-text', 'update-action', 'update-dismiss',
-  'version-pill', 'version-label', 'version-state',
+  'update-widget', 'update-widget-version', 'update-dot', 'update-dot-ring-fill',
   'analysis-progress', 'analysis-bar', 'analysis-fill', 'analysis-note',
   'export-blocked',
 ].forEach((id) => {
@@ -701,16 +700,36 @@ els.cancelBtn.addEventListener('click', () => {
 });
 
 // ---------------------------------------------------------------------------
-// App updates: a quiet banner, nothing downloads until asked
+// Update status widget: one dot, five states, no separate banner.
+// See the update-widget skill for the full state spec this implements.
 // ---------------------------------------------------------------------------
 
-const updateUi = { mode: null };
+const RING_RADIUS = 8;
+const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
+els.updateDotRingFill.style.strokeDasharray = String(RING_CIRCUMFERENCE);
 
-// state: 'unknown' (grey), 'current' (green), 'attention' (amber)
-function setVersionState(state, words) {
-  els.versionPill.dataset.state = state;
-  els.versionPill.title = words;
-  els.versionState.textContent = words;
+const UPDATE_DOT_LABELS = {
+  current: 'Up to date',
+  available: 'Update available — click to download',
+  downloading: 'Downloading the update',
+  downloaded: 'Click to restart the app',
+  error: "Can't connect to GitHub",
+};
+
+let updateState = null;
+
+function setUpdateDot(state, overrideLabel) {
+  updateState = state;
+  els.updateDot.dataset.state = state;
+  els.updateDot.disabled = state !== 'available' && state !== 'downloaded';
+  const label = overrideLabel || UPDATE_DOT_LABELS[state] || '';
+  els.updateDot.title = label;
+  els.updateDot.setAttribute('aria-label', label);
+}
+
+function setRingProgress(fraction) {
+  const offset = RING_CIRCUMFERENCE * (1 - Math.max(0, Math.min(1, fraction)));
+  els.updateDotRingFill.style.strokeDashoffset = String(offset);
 }
 
 window.waveframe.onAnalysisProgress(({ percent }) => {
@@ -721,62 +740,48 @@ window.waveframe.onAnalysisProgress(({ percent }) => {
   }
 });
 
-window.waveframe.appInfo().then(({ version, packaged }) => {
-  els.versionLabel.textContent = `v${version}`;
-  if (!packaged) {
-    setVersionState('unknown', 'Development run; update checks happen in the installed app');
-  }
+// The label always shows the version actually running, not the one being
+// downloaded — it only changes again after a real restart.
+window.waveframe.appInfo().then(({ version }) => {
+  els.updateWidgetVersion.textContent = `v${version}`;
 });
-
-function showUpdateBanner(text, buttonLabel, mode) {
-  els.updateBanner.hidden = false;
-  els.updateText.textContent = text;
-  els.updateAction.hidden = !buttonLabel;
-  if (buttonLabel) els.updateAction.textContent = buttonLabel;
-  updateUi.mode = mode;
-}
 
 window.waveframe.onUpdateState((state) => {
   if (state.status === 'none') {
-    setVersionState('current', 'You are on the latest version');
-    return;
-  }
-  if (state.status === 'available' || state.status === 'downloading') {
-    setVersionState('attention', 'A newer version is available');
-  } else if (state.status === 'downloaded') {
-    setVersionState('attention', 'Update downloaded; restart to install it');
-  }
-  if (state.status === 'available') {
-    showUpdateBanner(`Waveframe ${state.version} is out. Updating is free and takes a minute.`,
-      'Get the update', 'download');
+    setUpdateDot('current');
+  } else if (state.status === 'available') {
+    setUpdateDot('available');
   } else if (state.status === 'downloading') {
-    showUpdateBanner(`Downloading the update, ${state.percent}%.`, null, null);
+    setUpdateDot('downloading');
+    setRingProgress(state.percent / 100);
   } else if (state.status === 'downloaded') {
-    showUpdateBanner(`Update ready. Waveframe ${state.version} will be installed when the app restarts.`,
-      'Restart now', 'install');
-  } else if (state.status === 'error' && updateUi.mode === null && !els.updateBanner.hidden) {
-    // Only mention errors if the user was mid-update; a failed background
-    // check just tries again later.
-    showUpdateBanner('The update could not be downloaded. It will try again later.', null, null);
+    setUpdateDot('downloaded');
+  } else if (state.status === 'error') {
+    // Red interrupts whatever the dot was showing, including mid-download.
+    setUpdateDot('error');
   }
+  // Nothing to check in a dev run, so the widget stays hidden until the
+  // packaged app's first real check result arrives.
+  els.updateWidget.hidden = false;
 });
 
-els.updateAction.addEventListener('click', async () => {
-  if (updateUi.mode === 'download') {
-    els.updateAction.hidden = true;
-    els.updateText.textContent = 'Starting the download.';
-    updateUi.mode = null;
+els.updateDot.addEventListener('click', async () => {
+  if (updateState === 'available') {
+    setUpdateDot('downloading');
+    setRingProgress(0);
     await window.waveframe.updateDownload();
-  } else if (updateUi.mode === 'install') {
+  } else if (updateState === 'downloaded') {
     const result = await window.waveframe.updateInstall();
     if (result.error) {
-      els.updateText.textContent = result.error;
+      // Can't restart right now (an export is running). Say why through
+      // the dot's own label rather than adding separate UI for it, then
+      // drop back to the normal "ready" wording after a few seconds.
+      setUpdateDot('downloaded', result.error);
+      setTimeout(() => {
+        if (updateState === 'downloaded') setUpdateDot('downloaded');
+      }, 6000);
     }
   }
-});
-
-els.updateDismiss.addEventListener('click', () => {
-  els.updateBanner.hidden = true;
 });
 
 // Drops anywhere outside the two dropzones must not make Chromium
