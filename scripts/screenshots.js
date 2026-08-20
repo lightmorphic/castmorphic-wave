@@ -23,7 +23,9 @@ const FFMPEG = require('ffmpeg-static');
   if (!fs.existsSync(shotBg)) {
     execFileSync(FFMPEG, ['-hide_banner', '-loglevel', 'error', '-y',
       '-f', 'lavfi', '-i',
-      'gradients=s=2560x1440:n=3:c0=0x111827:c1=0x3D51B4:c2=0xE8207E:x0=200:y0=1300:x1=2400:y1=140:d=1',
+      // A warm, on-brand backdrop: Auto match then lands on Waveframe's own
+      // yellow rather than on a colour borrowed from an unrelated image.
+      'gradients=s=2560x1440:n=3:c0=0x0C1220:c1=0x3F2A07:c2=0xB8800C:x0=200:y0=1300:x1=2400:y1=140:d=1',
       '-frames:v', '1', shotBg]);
   }
   if (!fs.existsSync(shotAudio)) {
