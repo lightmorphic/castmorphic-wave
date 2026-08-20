@@ -52,10 +52,12 @@
 <main class="layout">
   <div class="col-main">
 
-    <section class="panel" aria-labelledby="preview-heading">
-      <h2 id="preview-heading">Preview</h2>
-      <p class="hint">Drag the box to move the waveform. Drag its corners or edges to resize it.
-         You can also focus the box and use the arrow keys (hold Shift to resize).</p>
+    <section class="panel panel-preview" aria-labelledby="preview-heading">
+      <div class="panel-head">
+        <h2 id="preview-heading">Preview</h2>
+        <p class="hint">Drag the box to move the waveform, its edges to resize it, or focus it
+           and use the arrow keys (hold Shift to resize).</p>
+      </div>
       <div class="stage-wrap">
         <div class="stage" id="stage">
           <canvas id="bg-canvas"></canvas>
@@ -75,8 +77,27 @@
       </div>
     </section>
 
-    <section class="panel" aria-labelledby="style-heading">
-      <h2 id="style-heading">Waveform style</h2>
+    <section class="panel panel-style" aria-labelledby="style-heading">
+      <div class="panel-head">
+        <h2 id="style-heading">Waveform style</h2>
+        <div class="colour-row" role="group" aria-label="Waveform colour">
+          <button type="button" class="btn-secondary colour-auto" id="colour-auto">
+            <span class="swatch" id="auto-swatch" aria-hidden="true"></span>
+            Auto match
+          </button>
+          <label class="colour-pick">
+            <span class="visually-hidden">Pick a custom colour</span>
+            <input type="color" id="colour-picker" value="#FBC711">
+          </label>
+          <label class="colour-hex">
+            <span class="visually-hidden">Hex colour code</span>
+            <input type="text" id="colour-hex" value="#FBC711" spellcheck="false"
+                   maxlength="7" pattern="#?[0-9a-fA-F]{6}" aria-describedby="colour-hint">
+          </label>
+        </div>
+      </div>
+      <p class="hint" id="colour-hint">The colour is matched to your image — override it with
+         the picker or a hex code.</p>
       <div class="style-grid" id="style-grid" role="radiogroup" aria-label="Waveform style"></div>
     </section>
 
@@ -132,39 +153,19 @@
       <p class="msg warning" id="audio-warning" hidden></p>
     </section>
 
-    <section class="panel" aria-labelledby="colour-heading">
-      <h2 id="colour-heading">Waveform colour</h2>
-      <div class="colour-row">
-        <button type="button" class="btn-secondary colour-auto" id="colour-auto">
-          <span class="swatch" id="auto-swatch" aria-hidden="true"></span>
-          Auto match
-        </button>
-        <label class="colour-pick">
-          <span class="visually-hidden">Pick a custom colour</span>
-          <input type="color" id="colour-picker" value="#FBC711">
-        </label>
-        <label class="colour-hex">
-          <span class="visually-hidden">Hex colour code</span>
-          <input type="text" id="colour-hex" value="#FBC711" spellcheck="false"
-                 maxlength="7" pattern="#?[0-9a-fA-F]{6}" aria-describedby="colour-hint">
-        </label>
-      </div>
-      <p class="hint" id="colour-hint">The colour is matched to your image automatically.
-         Use the picker or type a hex code to override it.</p>
-    </section>
-
     <section class="panel" aria-labelledby="export-heading">
       <h2 id="export-heading">Export</h2>
 
-      <label class="field-label" for="container-select">File format</label>
-      <select id="container-select">
-        <option value="auto" selected>Automatic (recommended)</option>
-        <option value="mp4">MP4</option>
-        <option value="mkv">MKV</option>
-      </select>
-      <p class="msg info" id="container-note">Automatic picks MP4 when your audio fits it
-         (MP3, AAC/M4A) and MKV otherwise. YouTube accepts both, and your audio is copied
-         into the video untouched either way.</p>
+      <div class="field-row">
+        <label class="field-label" for="container-select">File format</label>
+        <select id="container-select">
+          <option value="auto" selected>Automatic (recommended)</option>
+          <option value="mp4">MP4</option>
+          <option value="mkv">MKV</option>
+        </select>
+      </div>
+      <p class="msg info" id="container-note">Automatic picks MP4 for MP3 and AAC audio,
+         and MKV otherwise. YouTube accepts both, and your audio is copied in untouched.</p>
 
       <button type="button" class="btn-primary" id="export-btn" disabled>
         Export video
