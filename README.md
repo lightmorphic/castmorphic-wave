@@ -11,7 +11,8 @@ animated waveform, without your audio ever being touched.
 2. Drop in your audio (MP3, WAV, FLAC, AAC/M4A or OGG).
 3. Drag and resize the box where the waveform should appear.
 4. Pick one of 20 waveform styles. Every style shows a live animated preview.
-5. The waveform colour is matched to your image automatically, or pick your own.
+5. The waveform colour is matched to your image automatically, or pick your
+   own with the picker or a hex code beside the style picker.
 6. Export. You get a 1920 × 1080 (1080p) video, ready to upload.
 
 **Your audio is copied into the video bit-for-bit.** Waveframe never
@@ -36,9 +37,11 @@ chmod +x Lightmorphic-Waveframe-*.AppImage
 
 No installation, no dependencies. FFmpeg is bundled inside.
 
-Once installed, Waveframe checks for new versions itself and offers them in
-a banner when one is out. Nothing downloads until you choose, and the
-version pill in the top-right corner shows what you are running.
+Once installed, Waveframe checks for new versions itself. The small dot
+next to the app name is the whole update UI: green when you are current,
+amber with a download icon when an update is out (click it to fetch), a
+progress ring while it downloads, then green with a restart icon when it
+is ready. Nothing downloads until you choose.
 
 ## Building from source
 

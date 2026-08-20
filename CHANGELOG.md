@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.0.8] - 2026-08-20
+
+- The whole app now fits the window, so there is no scroll bar down the
+  side of it any more. The preview grows and shrinks with the window
+  instead of being a fixed size, and the twenty style thumbnails sit in
+  three tidy rows whatever size you make it.
+- The waveform colour controls have moved up next to the style picker,
+  where they belong: style and colour are one decision, and the panel
+  they used to sit in was pushing everything else off the bottom.
+- Files you have chosen are now highlighted in Waveframe's yellow rather
+  than green, in both the light and dark themes.
+
 ## [1.0.7] - 2026-08-20
 
 - Fixed the app not starting at all on most current Linux systems. If

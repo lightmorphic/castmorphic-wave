@@ -18,7 +18,11 @@
   --brand-navy: #111827;
   --link: #1b74bc;
   --danger: #cc372d;   --danger-bg: #fef2f1;
-  --success: #38813a;  --success-bg: #f2f9f3;
+  /* Light mode confirms in the brand yellow rather than green. Flat
+     #fbc711 is unreadable as text on white, so the text is the dark gold
+     from the accent container and the accent itself carries the colour as
+     a rule down the side of the message. */
+  --success: #6b5300;  --success-bg: #fff8e2;
   --warning: #8f6c03;  --warning-bg: #fffbee;
   --info: #1b74bc;     --info-bg: #f0f8fe;
 
@@ -43,7 +47,9 @@
     --accent-container: #4b3c05;  --on-accent-container: #fde694;
     --link: #2295f1;
     --danger: #f34236;   --danger-bg: #350f0c;
-    --success: #4bae4f;  --success-bg: #102611;
+    /* Same yellow confirmation highlight as light mode, in the dark
+       theme's own accent-container pair so the two themes match. */
+    --success: #fde694;  --success-bg: #4b3c05;
     --warning: #ffc006;  --warning-bg: #382a01;
     --info: #2295f1;     --info-bg: #072135;
   }
@@ -51,22 +57,34 @@
 
 * { box-sizing: border-box; }
 
+/* The app fills the window exactly: the shell never scrolls, and every
+   region below sizes itself from the height that is actually available.
+   The preview stage is the one part that flexes; everything else is
+   intrinsically sized, so nothing ever spills past the bottom edge. */
+html { height: 100%; }
+
 body {
   margin: 0;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
   background: var(--bg);
   color: var(--fg);
   font-family: 'Manrope', sans-serif;
   font-size: 1rem;
-  line-height: 1.6;
-  padding: 1.5rem;
+  line-height: 1.5;
+  padding: 1.125rem 1.25rem;
 }
 
 .app-header {
   display: flex;
   align-items: center;
   gap: 1rem;
-  margin: 0 auto 1.5rem;
+  margin: 0 auto 1rem;
   max-width: 1400px;
+  width: 100%;
+  flex: 0 0 auto;
 }
 .app-header h1 {
   font-size: 1.5rem;
@@ -175,19 +193,40 @@ body {
 
 .layout {
   display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
-  gap: 1.5rem;
+  /* The preview is height-limited rather than width-limited once the
+     window stops scrolling, so the main column is deliberately narrower
+     than a 2:1 split: a narrower column means smaller style tiles, a
+     shorter style panel, and therefore a taller stage. */
+  grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+  gap: 1.25rem;
   max-width: 1400px;
+  width: 100%;
   margin: 0 auto;
-  align-items: start;
+  align-items: stretch;
+  flex: 1 1 auto;
+  min-height: 0;
 }
 .col-main, .col-side {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1rem;
   min-width: 0;
+  min-height: 0;
 }
-@media (max-width: 1080px) {
+/* Everything is sized to fit, so this never engages in normal use. It is
+   the safety net for the smallest supported window with several warnings
+   open at once - and even then it keeps the scrolling inside one column
+   rather than putting a bar down the whole window. */
+.col-side { overflow-y: auto; }
+/* The last panel takes the leftover height so both columns end on the
+   same line - a ragged bottom edge is what makes a fixed layout look
+   unfinished. The slack sits under the Export button, which is exactly
+   where progress and the "saved to..." message appear. */
+.col-side > .panel:last-child { flex: 1 1 auto; }
+/* Single column only if the window is somehow narrower than the app's own
+   1080px minimum width - at the minimum itself the two columns still fit,
+   which is what keeps the page from growing taller than the window. */
+@media (max-width: 900px) {
   .layout { grid-template-columns: 1fr; }
 }
 
@@ -196,24 +235,63 @@ body {
   border: 1px solid var(--panel-border);
   border-radius: var(--panel-radius);
   box-shadow: var(--shadow-panel);
-  padding: 1.5rem;
+  padding: 1.125rem 1.25rem;
+  flex: 0 0 auto;
 }
 .panel h2 {
   font-size: 1.0625rem;
   font-weight: 600;
-  margin: 0 0 0.75rem;
+  margin: 0 0 0.6rem;
 }
+
+/* Style and colour are one thought - "how the waveform looks" - so the
+   colour controls sit on the style panel's heading row. That reads as one
+   group and costs the column nothing but the height of the controls. */
+.panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.35rem;
+}
+.panel-head h2 { margin: 0; }
+/* In a heading row the hint sits beside the heading instead of under it. */
+.panel-head .hint {
+  margin: 0;
+  flex: 1 1 auto;
+  min-width: 0;
+  text-align: right;
+}
+
+/* The preview is the only panel that takes the slack, so a taller window
+   simply means a bigger stage. */
+.panel-preview {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.panel-style { flex: 0 0 auto; }
 
 .hint {
   color: var(--muted-fg);
   font-size: 0.8125rem;
-  margin: 0 0 1rem;
+  margin: 0 0 0.6rem;
 }
 
 /* ---- Preview stage ---- */
-.stage-wrap { container-type: inline-size; }
+/* Sizing on the container rather than the stage keeps the frame exactly
+   16:9 whether the space left over is wide-and-short or tall-and-narrow -
+   a stretched preview would not match the exported video. */
+.stage-wrap {
+  container-type: size;
+  flex: 1 1 auto;
+  min-height: 0;
+}
 .stage {
   position: relative;
+  width: min(100%, calc(100cqh * 16 / 9));
+  margin: 0 auto;
   aspect-ratio: 16 / 9;
   background: var(--stage-bg);
   border-radius: calc(var(--radius) * 0.75);
@@ -274,16 +352,25 @@ body {
 .h-sw { bottom: -7px; left: -7px; cursor: nesw-resize; }
 .h-w  { top: calc(50% - 6px); left: -7px;  cursor: ew-resize; }
 
-.preview-audio { margin-top: 1rem; }
+.preview-audio { margin-top: 0.75rem; flex: 0 0 auto; }
 .preview-audio audio { width: 100%; }
 
 /* ---- Style picker ---- */
+/* A fixed seven columns, so all 20 styles are always exactly three rows
+   tall whatever the window width: the panel's height is then predictable
+   and the preview above it can take every pixel that is left over. Tiles
+   are smaller than they were, with the name laid over the thumbnail
+   rather than on a strip below it. */
 .style-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 0.75rem;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+@media (max-width: 900px) {
+  .style-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 }
 .style-option {
+  position: relative;
   appearance: none;
   border: 2px solid var(--border);
   border-radius: var(--radius);
@@ -301,13 +388,19 @@ body {
   aspect-ratio: 16 / 9;
 }
 .style-option .style-name {
-  display: block;
-  font-size: 0.8125rem;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  font-size: 0.6875rem;
   font-weight: 600;
-  padding: 0.4rem 0.6rem;
-  background: var(--panel);
-  color: var(--fg);
-  border-top: 1px solid var(--border);
+  line-height: 1.3;
+  padding: 0.5rem 0.45rem 0.3rem;
+  color: #ffffff;
+  background: linear-gradient(to top, rgba(6, 6, 10, 0.88), rgba(6, 6, 10, 0));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .style-option[aria-checked="true"] {
   border-color: var(--accent);
@@ -315,7 +408,7 @@ body {
 .style-option[aria-checked="true"] .style-name {
   background: var(--accent);
   color: var(--on-accent);
-  border-top-color: var(--accent);
+  padding-top: 0.3rem;
 }
 .style-option:focus-visible {
   outline: 2px solid var(--accent);
@@ -329,7 +422,7 @@ body {
   align-items: center;
   border: 1.5px dashed var(--border);
   border-radius: var(--radius);
-  padding: 0.9rem 1rem;
+  padding: 0.7rem 0.9rem;
   cursor: pointer;
   margin-bottom: 0.5rem;
   color: var(--fg);
@@ -338,18 +431,27 @@ body {
 .dropzone strong { display: block; font-size: 0.9375rem; }
 .dropzone .hint { display: block; margin: 0; }
 .dropzone .file-name {
-  display: block;
+  /* A confirmed file is highlighted in the brand yellow: the chip carries
+     the colour, the text is the dark gold that stays readable on it. */
+  display: inline-block;
+  margin-top: 0.15rem;
+  padding: 0.05rem 0.4rem;
+  border-radius: 0.4rem;
   font-size: 0.8125rem;
+  font-weight: 600;
   color: var(--success);
+  background: var(--success-bg);
+  box-shadow: inset 0 0 0 1px var(--accent);
   word-break: break-all;
 }
+.dropzone .file-name:empty { display: none; }
 .dropzone:hover, .dropzone.drag-over { border-color: var(--accent); }
 .dropzone:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 .dropzone + input + .msg { margin-top: 0.25rem; }
-#audio-drop { margin-top: 1rem; }
+#audio-drop { margin-top: 0.6rem; }
 
 /* ---- Audio analysis progress ---- */
 .analysis-progress { margin: 0.5rem 0 0; }
@@ -358,32 +460,38 @@ body {
 
 /* ---- Messages ---- */
 .msg {
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   border-radius: calc(var(--radius) * 0.65);
-  padding: 0.6rem 0.9rem;
-  margin: 0.5rem 0 0;
+  padding: 0.5rem 0.8rem;
+  margin: 0.4rem 0 0;
 }
 .msg[hidden] { display: none; }
 .msg.warning { background: var(--warning-bg); color: var(--warning); }
 .msg.info    { background: var(--info-bg);    color: var(--info); }
 .msg.error   { background: var(--danger-bg);  color: var(--danger); }
-.msg.success { background: var(--success-bg); color: var(--success); }
+.msg.success {
+  background: var(--success-bg);
+  color: var(--success);
+  /* Keeps a success message distinct from a warning, which sits on a
+     similar pale yellow. */
+  border-left: 3px solid var(--accent);
+}
 .msg.success .path { word-break: break-all; }
 
 /* ---- Colour panel ---- */
 .colour-row {
   display: flex;
-  gap: 0.75rem;
+  gap: 0.5rem;
   align-items: stretch;
-  margin-bottom: 0.75rem;
+  flex-shrink: 0;
 }
 .colour-auto {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  flex: 1;
   white-space: nowrap;
+  padding: 0.45rem 0.8rem;
 }
 .swatch {
   width: 18px;
@@ -397,9 +505,9 @@ body {
   box-shadow: inset 0 0 0 1px var(--accent);
 }
 .colour-pick input[type="color"] {
-  width: 52px;
+  width: 46px;
   height: 100%;
-  min-height: 42px;
+  min-height: 38px;
   padding: 4px;
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -407,7 +515,7 @@ body {
   cursor: pointer;
 }
 .colour-hex input {
-  width: 6.5rem;
+  width: 5.75rem;
   height: 100%;
   font-family: 'Manrope', sans-serif;
   font-size: 0.9375rem;
@@ -419,12 +527,22 @@ body {
   display: block;
   font-size: 0.9375rem;
   font-weight: 600;
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.3rem;
 }
+/* Label beside its control rather than above it: one row instead of two,
+   which is the difference between the Export panel fitting and not. */
+.field-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+.field-row .field-label { margin-bottom: 0; white-space: nowrap; }
+.field-row select { width: auto; flex: 1 1 auto; min-width: 0; }
 select, input[type="text"] {
   display: block;
   width: 100%;
-  padding: 0.6rem 0.8rem;
+  padding: 0.5rem 0.8rem;
   font-family: 'Manrope', sans-serif;
   font-size: 0.9375rem;
   color: var(--fg);
@@ -445,7 +563,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 .btn-primary {
   display: block;
   width: 100%;
-  margin-top: 1rem;
+  margin-top: 0.75rem;
   background: var(--accent);
   color: var(--on-accent);
   font-size: 1.0625rem;
@@ -465,7 +583,7 @@ a:focus-visible, [tabindex]:focus-visible {
 }
 
 /* ---- Progress ---- */
-.progress-area { margin-top: 1rem; }
+.progress-area { margin-top: 0.75rem; }
 .progress-track {
   height: 10px;
   border-radius: 999px;
@@ -485,7 +603,7 @@ a:focus-visible, [tabindex]:focus-visible {
   margin: 0.5rem 0 0.75rem;
 }
 
-.msg-area { margin-top: 0.75rem; }
+.msg-area { margin-top: 0.6rem; }
 .msg-area .msg button { margin-top: 0.5rem; }
 
 .visually-hidden {

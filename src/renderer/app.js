@@ -331,6 +331,9 @@ function buildStyleGrid() {
     const name = document.createElement('span');
     name.className = 'style-name';
     name.textContent = style.name;
+    // The tiles are small enough that a long name can be clipped, so the
+    // full one is always available on hover.
+    btn.title = style.name;
     btn.appendChild(name);
 
     btn.addEventListener('click', () => selectStyle(style.id));
@@ -395,8 +398,8 @@ function updateContainerNote() {
   note.classList.remove('warning');
   note.classList.add('info');
   if (!probe) {
-    note.textContent = 'Automatic picks MP4 when your audio fits it (MP3, AAC/M4A) and MKV ' +
-      'otherwise. YouTube accepts both, and your audio is copied into the video untouched either way.';
+    note.textContent = 'Automatic picks MP4 for MP3 and AAC audio, and MKV otherwise. ' +
+      'YouTube accepts both, and your audio is copied in untouched.';
     return;
   }
   const label = codecLabel(probe.codec);
