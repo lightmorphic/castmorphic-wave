@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.0.7] - 2026-08-20
+
+- Fixed the app not starting at all on most current Linux systems. If
+  double-clicking Waveframe did nothing, or you saw "AppImages require
+  FUSE to run", that was this: the AppImage needed the old FUSE 2
+  library, which Ubuntu 23.04 and later, current Fedora, openSUSE and
+  the immutable spins (Silverblue, Bazzite) no longer ship. It now uses
+  a self-contained runtime that needs no FUSE at all. Earlier versions
+  cannot update themselves out of this, so download 1.0.7 once from the
+  Releases page.
+
 ## [1.0.6] - 2026-08-10
 
 - The update indicator is now a single small dot next to the app name,
