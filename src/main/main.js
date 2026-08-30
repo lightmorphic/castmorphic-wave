@@ -1,6 +1,6 @@
 'use strict';
 
-const { app, BrowserWindow, dialog, ipcMain, shell } = require('electron');
+const { app, BrowserWindow, dialog, ipcMain, nativeTheme, shell } = require('electron');
 const { autoUpdater } = require('electron-updater');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -23,7 +23,7 @@ const AUDIO_EXTENSIONS = ['.mp3', '.wav', '.flac', '.aac', '.m4a', '.ogg', '.oga
 // Plain-language messages for everything that can go wrong.
 const ERROR_MESSAGES = {
   'no-audio-stream': 'That file does not seem to contain any audio. Try a different file.',
-  'too-long': 'That audio file is longer than 3 hours, which is more than Waveframe can handle in one go.',
+  'too-long': 'That audio file is longer than 3 hours, which is more than Wave can handle in one go.',
   'decode-failed': 'The audio could not be read. The file may be damaged or in an unusual format.',
   'bad-file': 'That file could not be opened. Check that it still exists and is a supported format.',
   'encoder-stopped': 'The video encoder stopped unexpectedly, so the export could not finish.',
@@ -35,9 +35,44 @@ function friendly(err) {
 
 let mainWindow = null;
 
+// ---------------------------------------------------------------------------
+// Preferences: one small JSON file in the user data directory. The theme is
+// the only thing in it, and a missing or corrupt file simply means defaults.
+// ---------------------------------------------------------------------------
+
+const THEMES = ['system', 'light', 'dark'];
+
+function prefsPath() {
+  return path.join(app.getPath('userData'), 'prefs.json');
+}
+
+function readPrefs() {
+  try {
+    const parsed = JSON.parse(fs.readFileSync(prefsPath(), 'utf8'));
+    return { theme: THEMES.includes(parsed.theme) ? parsed.theme : 'system' };
+  } catch {
+    return { theme: 'system' };
+  }
+}
+
+function writePrefs(prefs) {
+  try {
+    fs.writeFileSync(prefsPath(), JSON.stringify(prefs, null, 2));
+  } catch {
+    // Losing the preference until next time is not worth an error dialog.
+  }
+}
+
+let prefs = { theme: 'system' };
+
 // One export can run at a time.
 let currentExport = null;
 let exportCounter = 0;
+
+function resolvedTheme() {
+  if (prefs.theme !== 'system') return prefs.theme;
+  return nativeTheme.shouldUseDarkColors ? 'dark' : 'light';
+}
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -45,11 +80,14 @@ function createWindow() {
     height: 940,
     minWidth: 1080,
     minHeight: 720,
-    backgroundColor: '#09090b',
-    title: 'Lightmorphic Waveframe',
+    backgroundColor: resolvedTheme() === 'dark' ? '#09090b' : '#ffffff',
+    title: 'Castmorphic Wave',
     icon: path.join(__dirname, '..', '..', 'assets', 'icon.png'),
     webPreferences: {
       preload: path.join(__dirname, '..', 'preload.js'),
+      // The renderer needs the stored theme synchronously, before its
+      // first paint, so it travels as an argument rather than over IPC.
+      additionalArguments: [`--wf-theme=${prefs.theme}`],
       contextIsolation: true,
       sandbox: true,
       nodeIntegration: false,
@@ -95,6 +133,8 @@ function setupUpdates() {
 }
 
 app.whenReady().then(() => {
+  prefs = readPrefs();
+  nativeTheme.themeSource = prefs.theme;
   createWindow();
   setupUpdates();
 });
@@ -107,6 +147,16 @@ app.on('window-all-closed', () => {
 // ---------------------------------------------------------------------------
 // IPC: every handler validates its inputs before touching the filesystem.
 // ---------------------------------------------------------------------------
+
+ipcMain.handle('set-theme', (event, theme) => {
+  if (!THEMES.includes(theme)) return { error: 'unknown theme' };
+  prefs = { ...prefs, theme };
+  writePrefs(prefs);
+  // Keeps the next launch's window background right, and matches any
+  // native chrome to what the page is showing.
+  nativeTheme.themeSource = theme;
+  return { theme };
+});
 
 ipcMain.handle('probe-audio', async (event, filePath) => {
   if (!isSupportedMediaFile(filePath, AUDIO_EXTENSIONS)) {
@@ -145,14 +195,14 @@ ipcMain.handle('decode-audio', async (event, filePath, expectedSeconds) => {
 
 ipcMain.handle('choose-export-path', async (event, opts) => {
   const container = opts && opts.container === 'mp4' ? 'mp4' : 'mkv';
-  const baseName = (opts && typeof opts.baseName === 'string' ? opts.baseName : 'waveframe')
+  const baseName = (opts && typeof opts.baseName === 'string' ? opts.baseName : 'wave')
     .replace(/[^\w\s.-]/g, '')
-    .trim() || 'waveframe';
+    .trim() || 'wave';
 
   // Test hook: automated tests point exports at a fixed path so no
   // dialog needs clicking. Ignored in normal use.
-  if (process.env.WAVEFRAME_EXPORT_PATH) {
-    return { filePath: process.env.WAVEFRAME_EXPORT_PATH };
+  if (process.env.WAVE_EXPORT_PATH) {
+    return { filePath: process.env.WAVE_EXPORT_PATH };
   }
 
   const result = await dialog.showSaveDialog(mainWindow, {
@@ -251,6 +301,19 @@ ipcMain.handle('app-info', async () => ({
   version: app.getVersion(),
   packaged: app.isPackaged,
 }));
+
+// The dot's own click asks for this; the timer in setupUpdates() asks for
+// the same thing on its own schedule. Either way the answer comes back as
+// an 'update-state' push, so this only reports whether the check ran.
+ipcMain.handle('update-check', async () => {
+  if (!app.isPackaged) return { error: 'not packaged' };
+  try {
+    await autoUpdater.checkForUpdates();
+    return { ok: true };
+  } catch {
+    return { error: 'check failed' };
+  }
+});
 
 ipcMain.handle('update-download', async () => {
   if (!app.isPackaged) return { ok: false };

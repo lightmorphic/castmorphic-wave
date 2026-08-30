@@ -81,7 +81,7 @@ function makeFixtures() {
 async function launchApp(exportPath) {
   const app = await electron.launch({
     args: [ROOT],
-    env: { ...process.env, WAVEFRAME_EXPORT_PATH: exportPath || '' },
+    env: { ...process.env, WAVE_EXPORT_PATH: exportPath || '' },
   });
   const page = await app.firstWindow();
   await page.waitForSelector('#style-grid .style-option');
@@ -167,6 +167,173 @@ async function smallImageCase() {
   }
 }
 
+// The theme toggle: cycles, repaints, persists, and does not push the
+// layout past the bottom of the window at any supported size.
+async function themeCase() {
+  console.log('\ncase: theme toggle cycles, persists, and keeps the app scroll-free');
+  const { app, page } = await launchApp('');
+  try {
+    const read = () => page.evaluate(() => ({
+      preference: window.WFTheme.preference,
+      resolved: window.WFTheme.resolved,
+      applied: document.documentElement.dataset.theme,
+      icon: document.getElementById('theme-toggle').dataset.preference,
+    }));
+
+    const start = await read();
+    check('starts on the desktop setting', start.preference === 'system', start.preference);
+    check('a concrete theme is applied before anything is clicked',
+      start.applied === start.resolved && ['light', 'dark'].includes(start.applied),
+      JSON.stringify(start));
+
+    await page.click('#theme-toggle');
+    const light = await read();
+    check('first click gives light', light.preference === 'light' && light.applied === 'light',
+      JSON.stringify(light));
+    check('the icon follows the preference', light.icon === 'light', light.icon);
+    const lightBg = await page.evaluate(() =>
+      getComputedStyle(document.body).backgroundColor);
+    check('light really repaints the page', lightBg === 'rgb(255, 255, 255)', lightBg);
+
+    await page.click('#theme-toggle');
+    const dark = await read();
+    check('second click gives dark', dark.preference === 'dark' && dark.applied === 'dark',
+      JSON.stringify(dark));
+    const darkBg = await page.evaluate(() =>
+      getComputedStyle(document.body).backgroundColor);
+    check('dark really repaints the page', darkBg === 'rgb(9, 9, 11)', darkBg);
+
+    // The preference reaches disk, which is what makes it survive a restart.
+    const userData = await app.evaluate(({ app: electronApp }) => electronApp.getPath('userData'));
+    const prefsFile = path.join(userData, 'prefs.json');
+    await page.waitForTimeout(200);
+    let saved = {};
+    try { saved = JSON.parse(fs.readFileSync(prefsFile, 'utf8')); } catch { /* reported below */ }
+    check('the preference is written to prefs.json', saved.theme === 'dark', JSON.stringify(saved));
+
+    await page.click('#theme-toggle');
+    const back = await read();
+    check('third click returns to the desktop setting', back.preference === 'system', back.preference);
+
+    // A new header control changes the header's height, so the no-scroll
+    // rule has to be re-checked at every supported size, in both themes.
+    for (const theme of ['light', 'dark']) {
+      await page.evaluate((t) => window.WFTheme.set(t), theme);
+      for (const [w, h] of [[1440, 940], [1280, 800], [1080, 720]]) {
+        await app.evaluate(({ BrowserWindow }, size) => {
+          BrowserWindow.getAllWindows()[0].setContentSize(size[0], size[1]);
+        }, [w, h]);
+        await page.waitForTimeout(250);
+        const overflow = await page.evaluate(() =>
+          document.documentElement.scrollHeight - document.documentElement.clientHeight);
+        check(`no scroll bar in ${theme} at ${w}x${h}`, overflow <= 0, `overflow ${overflow}px`);
+      }
+    }
+
+    // These runs share the real app's preference file, so leave the
+    // setting as it was found rather than on whatever was tested last.
+    await page.evaluate(() => window.WFTheme.set('system'));
+    await page.waitForTimeout(200);
+  } finally {
+    await app.close();
+  }
+}
+
+// The update dot, driven exactly as the real updater drives it: by
+// pushing 'update-state' from the main process into the window.
+async function updateDotCase() {
+  console.log('\ncase: update dot cycles green → yellow → ring → blue');
+  const { app, page } = await launchApp('');
+  try {
+    const push = (state) => app.evaluate(({ BrowserWindow }, s2) => {
+      BrowserWindow.getAllWindows()[0].webContents.send('update-state', s2);
+    }, state);
+
+    const dot = () => page.evaluate(() => {
+      const el = document.getElementById('update-dot');
+      const style = getComputedStyle(el);
+      return {
+        state: el.dataset.state,
+        cursor: style.cursor,
+        ariaDisabled: el.getAttribute('aria-disabled'),
+        title: el.title,
+        fill: getComputedStyle(el, '::before').backgroundColor,
+        pulse: getComputedStyle(el, '::after').animationName,
+        ringShown: getComputedStyle(document.querySelector('.update-dot-ring')).display,
+        restartShown: getComputedStyle(document.getElementById('update-dot-icon-restart')).display,
+        downloadShown: getComputedStyle(document.getElementById('update-dot-icon-download')).display,
+      };
+    });
+
+    const seenCursors = [];
+    const note = (d) => { seenCursors.push(`${d.state}:${d.cursor}`); return d; };
+
+    await push({ status: 'none' });
+    await page.waitForFunction(() => !document.getElementById('update-widget').hidden);
+    const green = note(await dot());
+    check('up to date is the Lightmorphic green', green.fill === 'rgb(75, 174, 79)', green.fill);
+    check('green invites a click', green.cursor === 'pointer' && green.ariaDisabled === 'false',
+      JSON.stringify(green));
+    check('green says a click re-checks', /check again/.test(green.title), green.title);
+
+    // Clicking green checks: two pulses, and the answer waits for them.
+    await page.click('#update-dot');
+    const checking = note(await dot());
+    check('clicking green starts a check', checking.state === 'checking', checking.state);
+    check('the check double-pulses', checking.pulse === 'update-dot-pulse', checking.pulse);
+    check('the pulse runs exactly twice', await page.evaluate(() =>
+      getComputedStyle(document.getElementById('update-dot'), '::after').animationIterationCount === '2'));
+    check('mid-check the dot takes no clicks', checking.ariaDisabled === 'true' && checking.cursor === 'default',
+      JSON.stringify(checking));
+
+    // An answer arriving mid-pulse is held until the pulses finish.
+    await push({ status: 'available' });
+    const midPulse = await dot();
+    check('an early answer waits for the pulses', midPulse.state === 'checking', midPulse.state);
+
+    await page.waitForFunction(() =>
+      document.getElementById('update-dot').dataset.state === 'available', null, { timeout: 4000 });
+    const amber = note(await dot());
+    check('an update turns the dot amber', amber.fill === 'rgb(255, 192, 6)', amber.fill);
+    check('amber shows the download icon', amber.downloadShown === 'block', amber.downloadShown);
+
+    // Clicking amber downloads: hollow dot, ring tracing round the edge.
+    await page.click('#update-dot');
+    const downloading = note(await dot());
+    check('clicking amber starts the download', downloading.state === 'downloading', downloading.state);
+    check('the dot hollows out for the ring',
+      downloading.fill === 'rgba(0, 0, 0, 0)', downloading.fill);
+    check('the ring is showing', downloading.ringShown === 'block', downloading.ringShown);
+
+    await push({ status: 'downloading', percent: 40 });
+    const offset = await page.evaluate(() =>
+      Number(document.getElementById('update-dot-ring-fill').style.strokeDashoffset));
+    const circumference = 2 * Math.PI * 8;
+    check('the ring traces round to 40%',
+      Math.abs(offset - circumference * 0.6) < 0.1, `offset ${offset}`);
+
+    // A full ring becomes blue, and blue is the restart.
+    await push({ status: 'downloaded' });
+    const blue = note(await dot());
+    check('a finished download turns the dot blue', blue.fill === 'rgb(34, 149, 241)', blue.fill);
+    check('blue shows the restart icon', blue.restartShown === 'block', blue.restartShown);
+    check('blue invites a click', blue.cursor === 'pointer' && blue.ariaDisabled === 'false',
+      JSON.stringify(blue));
+    check('blue says it restarts', /restart/.test(blue.title), blue.title);
+
+    await push({ status: 'error' });
+    const red = note(await dot());
+    check('a failed check is the Lightmorphic red', red.fill === 'rgb(243, 66, 54)', red.fill);
+    check('red offers another try', red.cursor === 'pointer', red.cursor);
+
+    // The whole point of dropping `disabled`: no no-entry sign anywhere.
+    check('no state ever shows a no-entry cursor',
+      !seenCursors.some((c) => c.includes('not-allowed')), seenCursors.join(' '));
+  } finally {
+    await app.close();
+  }
+}
+
 async function boxAndPreviewCase() {
   console.log('\ncase: waveform box moves, resizes and keeps within bounds');
   const { app, page } = await launchApp('');
@@ -230,6 +397,8 @@ async function boxAndPreviewCase() {
 (async () => {
   makeFixtures();
 
+  await themeCase();
+  await updateDotCase();
   await boxAndPreviewCase();
   await smallImageCase();
 

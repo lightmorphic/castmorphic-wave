@@ -1,7 +1,7 @@
-# Waveframe Runbook
+# Wave Runbook
 
 Plain-language instructions for running, building, releasing and rolling
-back Lightmorphic Waveframe. No terminal knowledge assumed beyond copying
+back Wave. No terminal knowledge assumed beyond copying
 the commands shown.
 
 ## Run the app (development)
@@ -30,7 +30,7 @@ npm run build
 ```
 
 The finished file appears in `dist/`, named like
-`Lightmorphic-Waveframe-1.0.0-x86_64.AppImage`. To check it works:
+`Wave-1.0.0-x86_64.AppImage`. To check it works:
 
 ```bash
 node test/appimage-smoke.js
@@ -41,26 +41,26 @@ came through untouched.
 
 ## Publish a release
 
-Releases are automated, and people already running Waveframe are offered
+Releases are automated, and people already running Wave are offered
 the new version by the app itself. Every time you ship:
 
 1. Make the changes.
-2. Bump the `"version"` in `package.json` (e.g. `1.0.1` → `1.0.2`).
+2. Bump the `"version"` in `package.json` (e.g. `1.0.0` → `1.0.1`).
 3. Add a matching section to the top of `CHANGELOG.md`, headed exactly
-   `## [1.0.2] - 2026-08-09` (the workflow copies that section into the
+   `## [1.0.1] - 2026-08-30` (the workflow copies that section into the
    release notes).
 4. Run the tests, then the build, then the smoke test (all above).
 5. Commit and push:
 
 ```bash
-git add -A && git commit -m "Release v1.0.2" && git push
+git add -A && git commit -m "Release v1.0.1" && git push
 ```
 
 Because the push touched `package.json`, GitHub builds the AppImage and
 publishes the release automatically, with the update manifest that
 running apps check. A push that doesn't bump the version does nothing,
 and re-running the workflow never duplicates an existing release. Check
-progress at https://github.com/lightmorphic/waveframe/actions
+progress at https://github.com/lightmorphic/castmorphic-wave/actions
 
 The website's download button always points at the *latest* release, so
 there is nothing to change on the site.

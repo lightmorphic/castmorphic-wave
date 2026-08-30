@@ -4,8 +4,10 @@
 <meta charset="UTF-8">
 <meta http-equiv="Content-Security-Policy"
       content="default-src 'none'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' blob:; media-src blob:">
-<title>Lightmorphic Waveframe</title>
+<title>Castmorphic Wave</title>
 <link rel="stylesheet" href="style.css">
+<!-- Runs before the first paint so the window never flashes the wrong theme. -->
+<script src="theme.js"></script>
 </head>
 <body>
 
@@ -21,31 +23,52 @@
     </g>
   </svg>
   <div>
-    <h1>Lightmorphic Waveframe</h1>
+    <h1>Castmorphic Wave</h1>
     <p class="tagline">Turn a picture and a piece of audio into a YouTube-ready video</p>
   </div>
 
-  <div class="update-widget" id="update-widget" hidden>
-    <a class="update-widget-link" id="update-widget-link"
-       href="https://waveframe.lightmorphic.co.uk" target="_blank" rel="noopener noreferrer">
-      Lightmorphic Waveframe <span class="update-widget-version" id="update-widget-version"></span>
-    </a>
-    <button type="button" class="update-dot" id="update-dot">
-      <svg class="update-dot-ring" viewBox="0 0 20 20" aria-hidden="true">
-        <circle class="update-dot-ring-track" cx="10" cy="10" r="8"/>
-        <circle class="update-dot-ring-fill" id="update-dot-ring-fill" cx="10" cy="10" r="8"/>
+  <div class="header-tools">
+    <button type="button" class="theme-toggle" id="theme-toggle">
+      <svg class="theme-icon" id="theme-icon-system" viewBox="0 0 20 20" aria-hidden="true">
+        <rect x="2.6" y="3.6" width="14.8" height="10.4" rx="1.8"
+              fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M7 17h6" fill="none" stroke="currentColor" stroke-width="1.5"
+              stroke-linecap="round"/>
       </svg>
-      <svg class="update-dot-icon" id="update-dot-icon-download" viewBox="0 0 20 20" aria-hidden="true">
-        <path d="M10 4v8m0 0l-3.2-3.2M10 12l3.2-3.2M5 15h10"
-              fill="none" stroke="currentColor" stroke-width="1.6"
-              stroke-linecap="round" stroke-linejoin="round"/>
+      <svg class="theme-icon" id="theme-icon-light" viewBox="0 0 20 20" aria-hidden="true">
+        <circle cx="10" cy="10" r="3.6" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M10 1.8v2.1M10 16.1v2.1M18.2 10h-2.1M3.9 10H1.8M15.8 4.2l-1.5 1.5M5.7 14.3l-1.5 1.5M15.8 15.8l-1.5-1.5M5.7 5.7L4.2 4.2"
+              fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
       </svg>
-      <svg class="update-dot-icon" id="update-dot-icon-restart" viewBox="0 0 20 20" aria-hidden="true">
-        <path d="M15 6.5A5.8 5.8 0 1 0 16 10.2M15 6.5V3m0 3.5h-3.5"
-              fill="none" stroke="currentColor" stroke-width="1.6"
-              stroke-linecap="round" stroke-linejoin="round"/>
+      <svg class="theme-icon" id="theme-icon-dark" viewBox="0 0 20 20" aria-hidden="true">
+        <path d="M16.2 12.3A6.9 6.9 0 0 1 7.7 3.8a6.9 6.9 0 1 0 8.5 8.5z"
+              fill="none" stroke="currentColor" stroke-width="1.5"
+              stroke-linejoin="round"/>
       </svg>
     </button>
+
+    <div class="update-widget" id="update-widget" hidden>
+      <a class="update-widget-link" id="update-widget-link"
+         href="https://wave.castmorphic.com" target="_blank" rel="noopener noreferrer">
+        Castmorphic Wave <span class="update-widget-version" id="update-widget-version"></span>
+      </a>
+      <button type="button" class="update-dot" id="update-dot">
+        <svg class="update-dot-ring" viewBox="0 0 20 20" aria-hidden="true">
+          <circle class="update-dot-ring-track" cx="10" cy="10" r="8"/>
+          <circle class="update-dot-ring-fill" id="update-dot-ring-fill" cx="10" cy="10" r="8"/>
+        </svg>
+        <svg class="update-dot-icon" id="update-dot-icon-download" viewBox="0 0 20 20" aria-hidden="true">
+          <path d="M10 4v8m0 0l-3.2-3.2M10 12l3.2-3.2M5 15h10"
+                fill="none" stroke="currentColor" stroke-width="1.6"
+                stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <svg class="update-dot-icon" id="update-dot-icon-restart" viewBox="0 0 20 20" aria-hidden="true">
+          <path d="M15 6.5A5.8 5.8 0 1 0 16 10.2M15 6.5V3m0 3.5h-3.5"
+                fill="none" stroke="currentColor" stroke-width="1.6"
+                stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
   </div>
 </header>
 

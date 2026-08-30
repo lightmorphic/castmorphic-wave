@@ -1,16 +1,16 @@
 {
-  "name": "lightmorphic-waveframe",
-  "productName": "Lightmorphic Waveframe",
-  "version": "1.0.8",
+  "name": "wave",
+  "productName": "Castmorphic Wave",
+  "version": "1.0.0",
   "description": "Turn a background image and an audio file into a YouTube-ready video with an animated waveform overlay.",
   "main": "src/main/main.js",
-  "desktopName": "lightmorphic-waveframe.desktop",
+  "desktopName": "wave.desktop",
   "license": "GPL-3.0-or-later",
-  "author": "Lightmorphic <claude@charlie.cx>",
-  "homepage": "https://waveframe.lightmorphic.co.uk",
+  "author": "Castmorphic <claude@charlie.cx>",
+  "homepage": "https://wave.castmorphic.com",
   "repository": {
     "type": "git",
-    "url": "https://github.com/lightmorphic/waveframe.git"
+    "url": "https://github.com/lightmorphic/castmorphic-wave.git"
   },
   "scripts": {
     "start": "electron .",
@@ -18,16 +18,16 @@
     "build": "electron-builder --linux AppImage"
   },
   "build": {
-    "appId": "uk.co.lightmorphic.waveframe",
+    "appId": "com.castmorphic.wave",
     "toolsets": {
       "appimage": "1.0.3"
     },
     "publish": {
       "provider": "github",
       "owner": "lightmorphic",
-      "repo": "waveframe"
+      "repo": "castmorphic-wave"
     },
-    "artifactName": "Lightmorphic-Waveframe-${version}-${arch}.AppImage",
+    "artifactName": "Wave-${version}-${arch}.AppImage",
     "files": [
       "src/**/*",
       "assets/icon.png"
