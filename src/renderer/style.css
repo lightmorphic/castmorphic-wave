@@ -16,17 +16,17 @@
   --border: #e4e4e7;  --muted: #f4f4f5;  --muted-fg: #71717a;
   --shadow-panel: 0 1px 2px rgba(24,24,40,.05), 0 8px 24px -16px rgba(24,24,40,.18);
 
-  --accent: #fbc711;  --accent-hover: #ddaf0f;  --on-accent: #645007;
-  --accent-container: #fff8e2;  --on-accent-container: #5f4c06;
+  --accent: #ff5721;  --accent-hover: #e04d1d;  --on-accent: #471809;
+  --accent-container: #ffebe4;  --on-accent-container: #61210d;
 
   --brand-navy: #111827;
-  --link: #1b74bc;
+  --link: #c4400f;
   --danger: #cc372d;   --danger-bg: #fef2f1;
-  /* Light mode confirms in the brand yellow rather than green. Flat
-     #fbc711 is unreadable as text on white, so the text is the dark gold
-     from the accent container and the accent itself carries the colour as
-     a rule down the side of the message. */
-  --success: #6b5300;  --success-bg: #fff8e2;
+  /* Light mode confirms in the brand orange rather than green. Flat
+     #ff5721 is unreadable as text on white, so the text is the deep
+     rust from the accent container and the accent itself carries the
+     colour as a rule down the side of the message. 10.6:1. */
+  --success: #61210d;  --success-bg: #ffebe4;
   --warning: #8f6c03;  --warning-bg: #fffbee;
   --info: #1b74bc;     --info-bg: #f0f8fe;
 
@@ -49,12 +49,13 @@
   --panel: #1b1d29;  --panel-border: rgba(255,255,255,.09);
   --border: #27272a;  --muted: #1c1c1f;  --muted-fg: #a1a1aa;
   --shadow-panel: 0 1px 2px rgba(0,0,0,.35), 0 8px 24px -16px rgba(0,0,0,.6);
-  --accent-container: #4b3c05;  --on-accent-container: #fde694;
-  --link: #2295f1;
+  --accent-container: #4d1a0a;  --on-accent-container: #ffb39b;
+  --accent-hover: #ff6b3c;
+  --link: #ff8f68;
   --danger: #f34236;   --danger-bg: #350f0c;
-  /* Same yellow confirmation highlight as light mode, in the dark
-     theme's own accent-container pair so the two themes match. */
-  --success: #fde694;  --success-bg: #4b3c05;
+  /* Same orange confirmation highlight as light mode, in the dark
+     theme's own accent-container pair so the two themes match. 8.3:1. */
+  --success: #ffb39b;  --success-bg: #4d1a0a;
   --warning: #ffc006;  --warning-bg: #382a01;
   --info: #2295f1;     --info-bg: #072135;
 }
@@ -497,8 +498,8 @@ body {
 .dropzone strong { display: block; font-size: 0.9375rem; }
 .dropzone .hint { display: block; margin: 0; }
 .dropzone .file-name {
-  /* A confirmed file is highlighted in the brand yellow: the chip carries
-     the colour, the text is the dark gold that stays readable on it. */
+  /* A confirmed file is highlighted in the brand orange: the chip carries
+     the colour, the text is the deep rust that stays readable on it. */
   display: inline-block;
   margin-top: 0.15rem;
   padding: 0.05rem 0.4rem;
@@ -539,7 +540,7 @@ body {
   background: var(--success-bg);
   color: var(--success);
   /* Keeps a success message distinct from a warning, which sits on a
-     similar pale yellow. */
+     similar pale orange. */
   border-left: 3px solid var(--accent);
 }
 .msg.success .path { word-break: break-all; }

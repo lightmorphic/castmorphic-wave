@@ -5,7 +5,7 @@
 // prominent vivid hue, brightened or deepened so it stands out against
 // the image's overall brightness.
 
-const FALLBACK = '#FBC711';
+const FALLBACK = '#FF5721';
 
 function rgbToHsl(r, g, b) {
   r /= 255; g /= 255; b /= 255;
@@ -69,7 +69,7 @@ function autoColorFromImage(img) {
   for (let b = 0; b < BINS; b++) {
     if (weight[b] > bestW) { bestW = weight[b]; best = b; }
   }
-  // Mostly grey image: no meaningful hue to match, use brand yellow.
+  // Mostly grey image: no meaningful hue to match, use brand orange.
   if (best < 0 || bestW < count * 0.01) return FALLBACK;
 
   const hue = (best + 0.5) / BINS;
