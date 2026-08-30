@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-GB">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Castmorphic Wave: free waveform video maker for Linux</title>
-<meta name="description" content="Free, open-source Linux app that turns a background image and an audio file into a YouTube-ready 1080p video with an animated waveform. Your audio is never re-encoded.">
+<meta name="description" content="Free, open-source Linux app: turn a background image and audio into a YouTube-ready 1080p waveform video. Your audio is never re-encoded.">
 <link rel="canonical" href="https://wave.castmorphic.com/">
 <link rel="icon" href="images/wave-icon.png" type="image/png">
 <meta property="og:title" content="Castmorphic Wave">
@@ -16,6 +16,9 @@
 <meta name="twitter:title" content="Castmorphic Wave">
 <meta name="twitter:description" content="Turn a picture and a piece of audio into a YouTube-ready waveform video. Free and open source, for Linux.">
 <meta name="twitter:image" content="https://wave.castmorphic.com/images/wave-app-window.png">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#09090b" media="(prefers-color-scheme: dark)">
+<link rel="preload" href="fonts/Manrope-VariableFont_wght.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="style.css">
 <script type="application/ld+json">
 {
@@ -116,6 +119,7 @@
     </div>
     <figure class="hero-shot panel">
       <img src="images/wave-app-window.webp" width="1360" height="900"
+           fetchpriority="high" decoding="async"
            alt="The Wave window: a background image in a 16:9 preview with a resizable waveform box over it, the style picker and colour controls below it, and file and export panels alongside.">
     </figure>
   </section>
