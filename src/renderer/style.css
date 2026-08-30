@@ -1,0 +1,682 @@
+@font-face {
+  font-family: 'Manrope';
+  src: url('fonts/Manrope-VariableFont_wght.ttf') format('truetype-variations');
+  font-weight: 200 800;
+  font-display: swap;
+}
+
+/* The light palette is the base; the dark one below overrides it. Which
+   applies is decided by data-theme on <html>, set before the first paint
+   by theme.js — from the user's preference, or from the desktop's own
+   setting when that preference is "system". */
+:root {
+  color-scheme: light;
+  --bg: #ffffff;  --fg: #09090b;
+  --panel: #ffffff;  --panel-border: rgba(24, 24, 40, 0.10);
+  --border: #e4e4e7;  --muted: #f4f4f5;  --muted-fg: #71717a;
+  --shadow-panel: 0 1px 2px rgba(24,24,40,.05), 0 8px 24px -16px rgba(24,24,40,.18);
+
+  --accent: #fbc711;  --accent-hover: #ddaf0f;  --on-accent: #645007;
+  --accent-container: #fff8e2;  --on-accent-container: #5f4c06;
+
+  --brand-navy: #111827;
+  --link: #1b74bc;
+  --danger: #cc372d;   --danger-bg: #fef2f1;
+  /* Light mode confirms in the brand yellow rather than green. Flat
+     #fbc711 is unreadable as text on white, so the text is the dark gold
+     from the accent container and the accent itself carries the colour as
+     a rule down the side of the message. */
+  --success: #6b5300;  --success-bg: #fff8e2;
+  --warning: #8f6c03;  --warning-bg: #fffbee;
+  --info: #1b74bc;     --info-bg: #f0f8fe;
+
+  /* Update-widget dot: the exact Lightmorphic palette hues, fixed in
+     both themes (unlike --success/--warning above, which are darkened
+     per-theme for AA text contrast — the dot is a fill, not text). */
+  --update-green: #4bae4f;
+  --update-amber: #ffc006;
+  --update-blue: #2295f1;
+  --update-red: #f34236;
+
+  --radius: 0.875rem;
+  --panel-radius: 1.375rem;
+  --stage-bg: #101014;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #09090b;  --fg: #fafafa;
+  --panel: #1b1d29;  --panel-border: rgba(255,255,255,.09);
+  --border: #27272a;  --muted: #1c1c1f;  --muted-fg: #a1a1aa;
+  --shadow-panel: 0 1px 2px rgba(0,0,0,.35), 0 8px 24px -16px rgba(0,0,0,.6);
+  --accent-container: #4b3c05;  --on-accent-container: #fde694;
+  --link: #2295f1;
+  --danger: #f34236;   --danger-bg: #350f0c;
+  /* Same yellow confirmation highlight as light mode, in the dark
+     theme's own accent-container pair so the two themes match. */
+  --success: #fde694;  --success-bg: #4b3c05;
+  --warning: #ffc006;  --warning-bg: #382a01;
+  --info: #2295f1;     --info-bg: #072135;
+}
+
+* { box-sizing: border-box; }
+
+/* The app fills the window exactly: the shell never scrolls, and every
+   region below sizes itself from the height that is actually available.
+   The preview stage is the one part that flexes; everything else is
+   intrinsically sized, so nothing ever spills past the bottom edge. */
+html { height: 100%; }
+
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: 'Manrope', sans-serif;
+  font-size: 1rem;
+  line-height: 1.5;
+  padding: 1.125rem 1.25rem;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 0 auto 1rem;
+  max-width: 1400px;
+  width: 100%;
+  flex: 0 0 auto;
+}
+.app-header h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+.tagline {
+  margin: 0;
+  color: var(--muted-fg);
+  font-size: 0.9375rem;
+}
+.logo { flex-shrink: 0; }
+
+/* Update status widget: app name + running version as one link out to the
+   site, immediately followed by the status dot. The dot's colour and
+   overlay icon are the whole update UI — see the update-widget skill. */
+/* Everything on the right of the header sits in one group, so the theme
+   toggle keeps its place when the update widget is hidden. */
+.header-tools {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+}
+
+/* One small button cycling system → light → dark, in the same idiom as
+   the update dot: the icon is the state, the tooltip is the wording. */
+.theme-toggle {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: none;
+  color: var(--muted-fg);
+  cursor: pointer;
+}
+.theme-toggle:hover {
+  color: var(--fg);
+  background: var(--muted);
+}
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.theme-icon {
+  width: 17px;
+  height: 17px;
+  display: none;
+}
+.theme-toggle[data-preference="system"] #theme-icon-system,
+.theme-toggle[data-preference="light"] #theme-icon-light,
+.theme-toggle[data-preference="dark"] #theme-icon-dark { display: block; }
+
+.update-widget {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.update-widget[hidden] { display: none; }
+.update-widget-link {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--muted-fg);
+  text-decoration: none;
+}
+.update-widget-link:hover { color: var(--fg); }
+.update-widget-version { font-variant-numeric: tabular-nums; }
+
+.update-dot {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  background: none;
+  border-radius: 50%;
+  flex-shrink: 0;
+  /* Never `disabled`: Chromium forces cursor:not-allowed on a disabled
+     button, and a no-entry sign over the status dot reads as "something
+     is wrong" rather than "nothing to do here". The states that take no
+     click say so through the cursor and aria-disabled instead. */
+  cursor: pointer;
+}
+.update-dot[aria-disabled="true"] { cursor: default; }
+.update-dot::before {
+  /* The solid dot itself; the ring and overlay icons sit above it. */
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  background: var(--muted-fg);
+}
+.update-dot[data-state="current"]::before { background: var(--update-green); }
+.update-dot[data-state="checking"]::before { background: var(--update-green); }
+.update-dot[data-state="available"]::before { background: var(--update-amber); }
+.update-dot[data-state="downloaded"]::before { background: var(--update-blue); }
+.update-dot[data-state="error"]::before { background: var(--update-red); }
+.update-dot[data-state="downloading"]::before { background: none; }
+
+/* Checking: two pulses ring out of the dot and stop. The dot itself stays
+   green throughout, so the pulse reads as "looking" rather than as a
+   fourth colour to learn. */
+.update-dot[data-state="checking"]::after {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  border: 1.5px solid var(--update-green);
+  animation: update-dot-pulse 0.55s ease-out 2;
+}
+@keyframes update-dot-pulse {
+  from { transform: scale(1);   opacity: 0.9; }
+  to   { transform: scale(2.1); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .update-dot[data-state="checking"]::after { animation: none; }
+}
+
+.update-dot-ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: none;
+  transform: rotate(-90deg);
+}
+.update-dot[data-state="downloading"] .update-dot-ring { display: block; }
+.update-dot-ring-track {
+  fill: none;
+  stroke: var(--border);
+  stroke-width: 2;
+}
+.update-dot-ring-fill {
+  fill: none;
+  stroke: var(--update-amber);
+  stroke-width: 2;
+  stroke-linecap: round;
+  /* 2 * PI * r(8) = 50.27; dash math is set from JS as the ring fills. */
+  stroke-dasharray: 50.27;
+  stroke-dashoffset: 50.27;
+  transition: stroke-dashoffset 0.15s linear;
+}
+
+.update-dot-icon {
+  position: absolute;
+  inset: 4px;
+  width: 12px;
+  height: 12px;
+  display: none;
+  pointer-events: none;
+}
+/* Each overlay only ever appears on its own state's background, so each
+   gets the icon colour that reads best on that specific fill. */
+#update-dot-icon-download { color: var(--brand-navy); }
+#update-dot-icon-restart { color: #ffffff; }
+.update-dot[data-state="available"] #update-dot-icon-download { display: block; }
+.update-dot[data-state="downloaded"] #update-dot-icon-restart { display: block; }
+.update-dot:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.layout {
+  display: grid;
+  /* The preview is height-limited rather than width-limited once the
+     window stops scrolling, so the main column is deliberately narrower
+     than a 2:1 split: a narrower column means smaller style tiles, a
+     shorter style panel, and therefore a taller stage. */
+  grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+  gap: 1.25rem;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+  align-items: stretch;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.col-main, .col-side {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 0;
+  min-height: 0;
+}
+/* Everything is sized to fit, so this never engages in normal use. It is
+   the safety net for the smallest supported window with several warnings
+   open at once - and even then it keeps the scrolling inside one column
+   rather than putting a bar down the whole window. */
+.col-side { overflow-y: auto; }
+/* The last panel takes the leftover height so both columns end on the
+   same line - a ragged bottom edge is what makes a fixed layout look
+   unfinished. The slack sits under the Export button, which is exactly
+   where progress and the "saved to..." message appear. */
+.col-side > .panel:last-child { flex: 1 1 auto; }
+/* Single column only if the window is somehow narrower than the app's own
+   1080px minimum width - at the minimum itself the two columns still fit,
+   which is what keeps the page from growing taller than the window. */
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; }
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--panel-radius);
+  box-shadow: var(--shadow-panel);
+  padding: 1.125rem 1.25rem;
+  flex: 0 0 auto;
+}
+.panel h2 {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  margin: 0 0 0.6rem;
+}
+
+/* Style and colour are one thought - "how the waveform looks" - so the
+   colour controls sit on the style panel's heading row. That reads as one
+   group and costs the column nothing but the height of the controls. */
+.panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.35rem;
+}
+.panel-head h2 { margin: 0; }
+/* In a heading row the hint sits beside the heading instead of under it. */
+.panel-head .hint {
+  margin: 0;
+  flex: 1 1 auto;
+  min-width: 0;
+  text-align: right;
+}
+
+/* The preview is the only panel that takes the slack, so a taller window
+   simply means a bigger stage. */
+.panel-preview {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.panel-style { flex: 0 0 auto; }
+
+.hint {
+  color: var(--muted-fg);
+  font-size: 0.8125rem;
+  margin: 0 0 0.6rem;
+}
+
+/* ---- Preview stage ---- */
+/* Sizing on the container rather than the stage keeps the frame exactly
+   16:9 whether the space left over is wide-and-short or tall-and-narrow -
+   a stretched preview would not match the exported video. */
+.stage-wrap {
+  container-type: size;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.stage {
+  position: relative;
+  width: min(100%, calc(100cqh * 16 / 9));
+  margin: 0 auto;
+  aspect-ratio: 16 / 9;
+  background: var(--stage-bg);
+  border-radius: calc(var(--radius) * 0.75);
+  overflow: hidden;
+  touch-action: none;
+}
+#bg-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.stage-empty[hidden] { display: none; }
+.stage-empty {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  color: #9a9aa3;
+  font-size: 0.9375rem;
+  padding: 2rem;
+  margin: 0;
+}
+
+.wavebox {
+  position: absolute;
+  border: 1.5px dashed rgba(255, 255, 255, 0.75);
+  outline-offset: 2px;
+  cursor: move;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.12);
+}
+.wavebox:focus-visible {
+  outline: 2px solid var(--accent);
+  border-style: solid;
+}
+#wave-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.handle {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: #ffffff;
+  border: 1.5px solid #3a3a44;
+  border-radius: 3px;
+}
+.h-nw { top: -7px;  left: -7px;  cursor: nwse-resize; }
+.h-n  { top: -7px;  left: calc(50% - 6px); cursor: ns-resize; }
+.h-ne { top: -7px;  right: -7px; cursor: nesw-resize; }
+.h-e  { top: calc(50% - 6px); right: -7px; cursor: ew-resize; }
+.h-se { bottom: -7px; right: -7px; cursor: nwse-resize; }
+.h-s  { bottom: -7px; left: calc(50% - 6px); cursor: ns-resize; }
+.h-sw { bottom: -7px; left: -7px; cursor: nesw-resize; }
+.h-w  { top: calc(50% - 6px); left: -7px;  cursor: ew-resize; }
+
+.preview-audio { margin-top: 0.75rem; flex: 0 0 auto; }
+.preview-audio audio { width: 100%; }
+
+/* ---- Style picker ---- */
+/* A fixed seven columns, so all 20 styles are always exactly three rows
+   tall whatever the window width: the panel's height is then predictable
+   and the preview above it can take every pixel that is left over. Tiles
+   are smaller than they were, with the name laid over the thumbnail
+   rather than on a strip below it. */
+.style-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+@media (max-width: 900px) {
+  .style-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+}
+.style-option {
+  position: relative;
+  appearance: none;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--stage-bg);
+  padding: 0;
+  overflow: hidden;
+  cursor: pointer;
+  display: block;
+  width: 100%;
+  text-align: left;
+}
+.style-option canvas {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+}
+.style-option .style-name {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1.3;
+  padding: 0.5rem 0.45rem 0.3rem;
+  color: #ffffff;
+  background: linear-gradient(to top, rgba(6, 6, 10, 0.88), rgba(6, 6, 10, 0));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.style-option[aria-checked="true"] {
+  border-color: var(--accent);
+}
+.style-option[aria-checked="true"] .style-name {
+  background: var(--accent);
+  color: var(--on-accent);
+  padding-top: 0.3rem;
+}
+.style-option:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ---- Dropzones ---- */
+.dropzone {
+  display: flex;
+  gap: 0.9rem;
+  align-items: center;
+  border: 1.5px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 0.7rem 0.9rem;
+  cursor: pointer;
+  margin-bottom: 0.5rem;
+  color: var(--fg);
+}
+.dropzone svg { color: var(--muted-fg); flex-shrink: 0; }
+.dropzone strong { display: block; font-size: 0.9375rem; }
+.dropzone .hint { display: block; margin: 0; }
+.dropzone .file-name {
+  /* A confirmed file is highlighted in the brand yellow: the chip carries
+     the colour, the text is the dark gold that stays readable on it. */
+  display: inline-block;
+  margin-top: 0.15rem;
+  padding: 0.05rem 0.4rem;
+  border-radius: 0.4rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--success);
+  background: var(--success-bg);
+  box-shadow: inset 0 0 0 1px var(--accent);
+  word-break: break-all;
+}
+.dropzone .file-name:empty { display: none; }
+.dropzone:hover, .dropzone.drag-over { border-color: var(--accent); }
+.dropzone:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.dropzone + input + .msg { margin-top: 0.25rem; }
+#audio-drop { margin-top: 0.6rem; }
+
+/* ---- Audio analysis progress ---- */
+.analysis-progress { margin: 0.5rem 0 0; }
+.analysis-progress[hidden] { display: none; }
+.analysis-progress .hint { margin: 0.4rem 0 0; }
+
+/* ---- Messages ---- */
+.msg {
+  font-size: 0.8125rem;
+  border-radius: calc(var(--radius) * 0.65);
+  padding: 0.5rem 0.8rem;
+  margin: 0.4rem 0 0;
+}
+.msg[hidden] { display: none; }
+.msg.warning { background: var(--warning-bg); color: var(--warning); }
+.msg.info    { background: var(--info-bg);    color: var(--info); }
+.msg.error   { background: var(--danger-bg);  color: var(--danger); }
+.msg.success {
+  background: var(--success-bg);
+  color: var(--success);
+  /* Keeps a success message distinct from a warning, which sits on a
+     similar pale yellow. */
+  border-left: 3px solid var(--accent);
+}
+.msg.success .path { word-break: break-all; }
+
+/* ---- Colour panel ---- */
+.colour-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch;
+  flex-shrink: 0;
+}
+.colour-auto {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+  padding: 0.45rem 0.8rem;
+}
+.swatch {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  background: var(--accent);
+}
+.colour-auto[aria-pressed="true"] {
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+.colour-pick input[type="color"] {
+  width: 46px;
+  height: 100%;
+  min-height: 38px;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--muted);
+  cursor: pointer;
+}
+.colour-hex input {
+  width: 5.75rem;
+  height: 100%;
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.9375rem;
+  text-transform: uppercase;
+}
+
+/* ---- Forms & buttons ---- */
+.field-label {
+  display: block;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+}
+/* Label beside its control rather than above it: one row instead of two,
+   which is the difference between the Export panel fitting and not. */
+.field-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+.field-row .field-label { margin-bottom: 0; white-space: nowrap; }
+.field-row select { width: auto; flex: 1 1 auto; min-width: 0; }
+select, input[type="text"] {
+  display: block;
+  width: 100%;
+  padding: 0.5rem 0.8rem;
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.9375rem;
+  color: var(--fg);
+  background: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+button {
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  border-radius: var(--radius);
+  padding: 0.65rem 1.2rem;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-primary {
+  display: block;
+  width: 100%;
+  margin-top: 0.75rem;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 1.0625rem;
+  padding: 0.85rem 1.2rem;
+}
+.btn-primary:hover:not(:disabled) { background: var(--accent-hover); }
+.btn-secondary {
+  background: var(--muted);
+  color: var(--fg);
+  border-color: var(--border);
+}
+.btn-secondary:hover:not(:disabled) { border-color: var(--muted-fg); }
+button:focus-visible, select:focus-visible, input:focus-visible,
+a:focus-visible, [tabindex]:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ---- Progress ---- */
+.progress-area { margin-top: 0.75rem; }
+.progress-track {
+  height: 10px;
+  border-radius: 999px;
+  background: var(--muted);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--accent);
+  transition: width 0.15s linear;
+}
+.progress-text {
+  font-size: 0.875rem;
+  color: var(--muted-fg);
+  margin: 0.5rem 0 0.75rem;
+}
+
+.msg-area { margin-top: 0.6rem; }
+.msg-area .msg button { margin-top: 0.5rem; }
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

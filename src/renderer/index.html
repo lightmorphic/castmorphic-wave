@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' blob:; media-src blob:">
+<title>Castmorphic Wave</title>
+<link rel="stylesheet" href="style.css">
+<!-- Runs before the first paint so the window never flashes the wrong theme. -->
+<script src="theme.js"></script>
+</head>
+<body>
+
+<header class="app-header">
+  <svg class="logo" viewBox="0 0 48 48" width="40" height="40" aria-hidden="true">
+    <rect x="2" y="2" width="44" height="44" rx="10" fill="#111827"/>
+    <g fill="#FBC711">
+      <rect x="9"  y="20" width="4" height="8"  rx="2"/>
+      <rect x="16" y="14" width="4" height="20" rx="2"/>
+      <rect x="23" y="9"  width="4" height="30" rx="2"/>
+      <rect x="30" y="16" width="4" height="16" rx="2"/>
+      <rect x="37" y="21" width="4" height="6"  rx="2"/>
+    </g>
+  </svg>
+  <div>
+    <h1>Castmorphic Wave</h1>
+    <p class="tagline">Turn a picture and a piece of audio into a YouTube-ready video</p>
+  </div>
+
+  <div class="header-tools">
+    <button type="button" class="theme-toggle" id="theme-toggle">
+      <svg class="theme-icon" id="theme-icon-system" viewBox="0 0 20 20" aria-hidden="true">
+        <rect x="2.6" y="3.6" width="14.8" height="10.4" rx="1.8"
+              fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M7 17h6" fill="none" stroke="currentColor" stroke-width="1.5"
+              stroke-linecap="round"/>
+      </svg>
+      <svg class="theme-icon" id="theme-icon-light" viewBox="0 0 20 20" aria-hidden="true">
+        <circle cx="10" cy="10" r="3.6" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M10 1.8v2.1M10 16.1v2.1M18.2 10h-2.1M3.9 10H1.8M15.8 4.2l-1.5 1.5M5.7 14.3l-1.5 1.5M15.8 15.8l-1.5-1.5M5.7 5.7L4.2 4.2"
+              fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <svg class="theme-icon" id="theme-icon-dark" viewBox="0 0 20 20" aria-hidden="true">
+        <path d="M16.2 12.3A6.9 6.9 0 0 1 7.7 3.8a6.9 6.9 0 1 0 8.5 8.5z"
+              fill="none" stroke="currentColor" stroke-width="1.5"
+              stroke-linejoin="round"/>
+      </svg>
+    </button>
+
+    <div class="update-widget" id="update-widget" hidden>
+      <a class="update-widget-link" id="update-widget-link"
+         href="https://wave.castmorphic.com" target="_blank" rel="noopener noreferrer">
+        Castmorphic Wave <span class="update-widget-version" id="update-widget-version"></span>
+      </a>
+      <button type="button" class="update-dot" id="update-dot">
+        <svg class="update-dot-ring" viewBox="0 0 20 20" aria-hidden="true">
+          <circle class="update-dot-ring-track" cx="10" cy="10" r="8"/>
+          <circle class="update-dot-ring-fill" id="update-dot-ring-fill" cx="10" cy="10" r="8"/>
+        </svg>
+        <svg class="update-dot-icon" id="update-dot-icon-download" viewBox="0 0 20 20" aria-hidden="true">
+          <path d="M10 4v8m0 0l-3.2-3.2M10 12l3.2-3.2M5 15h10"
+                fill="none" stroke="currentColor" stroke-width="1.6"
+                stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <svg class="update-dot-icon" id="update-dot-icon-restart" viewBox="0 0 20 20" aria-hidden="true">
+          <path d="M15 6.5A5.8 5.8 0 1 0 16 10.2M15 6.5V3m0 3.5h-3.5"
+                fill="none" stroke="currentColor" stroke-width="1.6"
+                stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="layout">
+  <div class="col-main">
+
+    <section class="panel panel-preview" aria-labelledby="preview-heading">
+      <div class="panel-head">
+        <h2 id="preview-heading">Preview</h2>
+        <p class="hint">Drag the box to move the waveform, its edges to resize it, or focus it
+           and use the arrow keys (hold Shift to resize).</p>
+      </div>
+      <div class="stage-wrap">
+        <div class="stage" id="stage">
+          <canvas id="bg-canvas"></canvas>
+          <p class="stage-empty" id="stage-empty">Add a background image and an audio file to get started</p>
+          <div class="wavebox" id="wavebox" tabindex="0" role="application"
+               aria-label="Waveform position box. Use arrow keys to move, Shift plus arrow keys to resize.">
+            <canvas id="wave-canvas"></canvas>
+            <div class="handle h-nw" data-dir="nw"></div><div class="handle h-n" data-dir="n"></div>
+            <div class="handle h-ne" data-dir="ne"></div><div class="handle h-e" data-dir="e"></div>
+            <div class="handle h-se" data-dir="se"></div><div class="handle h-s" data-dir="s"></div>
+            <div class="handle h-sw" data-dir="sw"></div><div class="handle h-w" data-dir="w"></div>
+          </div>
+        </div>
+      </div>
+      <div class="preview-audio">
+        <audio id="audio-player" controls hidden></audio>
+      </div>
+    </section>
+
+    <section class="panel panel-style" aria-labelledby="style-heading">
+      <div class="panel-head">
+        <h2 id="style-heading">Waveform style</h2>
+        <div class="colour-row" role="group" aria-label="Waveform colour">
+          <button type="button" class="btn-secondary colour-auto" id="colour-auto">
+            <span class="swatch" id="auto-swatch" aria-hidden="true"></span>
+            Auto match
+          </button>
+          <label class="colour-pick">
+            <span class="visually-hidden">Pick a custom colour</span>
+            <input type="color" id="colour-picker" value="#FBC711">
+          </label>
+          <label class="colour-hex">
+            <span class="visually-hidden">Hex colour code</span>
+            <input type="text" id="colour-hex" value="#FBC711" spellcheck="false"
+                   maxlength="7" pattern="#?[0-9a-fA-F]{6}" aria-describedby="colour-hint">
+          </label>
+        </div>
+      </div>
+      <p class="hint" id="colour-hint">The colour is matched to your image — override it with
+         the picker or a hex code.</p>
+      <div class="style-grid" id="style-grid" role="radiogroup" aria-label="Waveform style"></div>
+    </section>
+
+  </div>
+
+  <div class="col-side">
+
+    <section class="panel" aria-labelledby="files-heading">
+      <h2 id="files-heading">Your files</h2>
+
+      <div class="dropzone" id="image-drop" role="button" tabindex="0"
+           aria-label="Choose a background image (JPG or PNG, at least 1920 by 1080)">
+        <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true" fill="none"
+             stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="16" rx="2.5"/>
+          <circle cx="9" cy="10" r="1.8"/>
+          <path d="M3.5 17.5 9 12.5l4 3.5 3.5-3 4 4"/>
+        </svg>
+        <div>
+          <strong>Background image</strong>
+          <span class="hint">JPG or PNG, at least 1920 × 1080</span>
+          <span class="file-name" id="image-name"></span>
+        </div>
+      </div>
+      <input type="file" id="image-input" accept=".jpg,.jpeg,.png" hidden>
+      <p class="msg warning" id="image-warning" hidden></p>
+      <p class="msg info" id="image-note" hidden></p>
+
+      <div class="dropzone" id="audio-drop" role="button" tabindex="0"
+           aria-label="Choose an audio file (MP3, WAV, FLAC, AAC, M4A or OGG)">
+        <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true" fill="none"
+             stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 18V6l10-2v12"/>
+          <circle cx="6.5" cy="18" r="2.5"/>
+          <circle cx="16.5" cy="16" r="2.5"/>
+        </svg>
+        <div>
+          <strong>Audio file</strong>
+          <span class="hint">MP3, WAV, FLAC, AAC, M4A or OGG</span>
+          <span class="file-name" id="audio-name"></span>
+        </div>
+      </div>
+      <input type="file" id="audio-input" accept=".mp3,.wav,.flac,.aac,.m4a,.ogg,.oga,.opus" hidden>
+      <div class="analysis-progress" id="analysis-progress" hidden>
+        <div class="progress-track" role="progressbar" id="analysis-bar"
+             aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"
+             aria-label="Reading the audio">
+          <div class="progress-fill" id="analysis-fill"></div>
+        </div>
+        <p class="hint" id="analysis-note"></p>
+      </div>
+      <p class="msg info" id="audio-info" hidden></p>
+      <p class="msg warning" id="audio-warning" hidden></p>
+    </section>
+
+    <section class="panel" aria-labelledby="export-heading">
+      <h2 id="export-heading">Export</h2>
+
+      <div class="field-row">
+        <label class="field-label" for="container-select">File format</label>
+        <select id="container-select">
+          <option value="auto" selected>Automatic (recommended)</option>
+          <option value="mp4">MP4</option>
+          <option value="mkv">MKV</option>
+        </select>
+      </div>
+      <p class="msg info" id="container-note">Automatic picks MP4 for MP3 and AAC audio,
+         and MKV otherwise. YouTube accepts both, and your audio is copied in untouched.</p>
+
+      <button type="button" class="btn-primary" id="export-btn" disabled>
+        Export video
+      </button>
+      <p class="msg" id="export-blocked" hidden></p>
+
+      <div class="progress-area" id="progress-area" hidden>
+        <div class="progress-track" role="progressbar" id="progress-bar-wrap"
+             aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Export progress">
+          <div class="progress-fill" id="progress-fill"></div>
+        </div>
+        <p class="progress-text" id="progress-text"></p>
+        <button type="button" class="btn-secondary" id="cancel-btn">Cancel export</button>
+      </div>
+
+      <div class="msg-area" id="status-area" role="status" aria-live="polite"></div>
+    </section>
+
+  </div>
+</main>
+
+<script src="analysis.js"></script>
+<script src="waveforms.js"></script>
+<script src="color.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

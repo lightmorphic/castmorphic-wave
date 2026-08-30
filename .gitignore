@@ -1,0 +1,6 @@
+node_modules/
+dist/
+test/tmp/
+test/fixtures/
+*.log
+.claude/settings.local.json
