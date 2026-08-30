@@ -19,6 +19,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # The last-updated date has to track real content changes, not the
+      # deploy, so it comes from the newest CHANGELOG entry rather than
+      # from today's date.
+      - name: Stamp the last-updated date from the changelog
+        run: |
+          DATE=$(grep -m1 -oE '[0-9]{4}-[0-9]{2}-[0-9]{2}' CHANGELOG.md)
+          DISPLAY=$(date -u -d "$DATE" '+%-d %B %Y')
+          sed -i -E "s|<time datetime=\"[0-9-]+\">[^<]*</time>|<time datetime=\"$DATE\">$DISPLAY</time>|" site/index.html
+          sed -i -E "s|(\"dateModified\": \")[0-9-]+|\1$DATE|g" site/index.html
+          sed -i -E "s|(<lastmod>)[0-9-]+|\1$DATE|" site/sitemap.xml
+          echo "stamped $DATE"
+
       - name: Push the site to the gh-pages branch
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
