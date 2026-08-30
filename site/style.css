@@ -1,6 +1,6 @@
 @font-face {
   font-family: 'Manrope';
-  src: url('fonts/Manrope-VariableFont_wght.ttf') format('truetype-variations');
+  src: url('fonts/Manrope-VariableFont_wght.woff2') format('woff2-variations');
   font-weight: 200 800;
   font-display: swap;
 }
@@ -32,6 +32,9 @@
 }
 
 * { box-sizing: border-box; }
+
+h1, h2, h3 { text-wrap: balance; }
+a, button { touch-action: manipulation; }
 
 /* Keep anchor targets clear of the sticky header. */
 html { scroll-padding-top: 5.5rem; }
