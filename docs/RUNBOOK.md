@@ -7,7 +7,7 @@ the commands shown.
 ## Run the app (development)
 
 ```bash
-cd ~/GitHub/waveframe
+cd castmorphic-wave     # wherever you cloned it
 npm install     # only needed the first time, or after pulling changes
 npm start
 ```
