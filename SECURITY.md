@@ -2,9 +2,13 @@
 
 ## Reporting a problem
 
-If you find a security problem in Wave, please email
-wave@castmorphic.com rather than opening a public issue. You will get a
-reply within a week.
+If you find a security problem in Wave, report it privately through
+GitHub rather than opening a public issue. Go to the repository's
+**Security** tab and choose **Report a vulnerability**. The report is
+visible only to the maintainers, and the conversation happens on GitHub.
+
+There is no email address to write to, by design. You will get a reply
+within a week.
 
 ## Supported versions
 

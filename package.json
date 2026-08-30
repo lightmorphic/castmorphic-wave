@@ -6,7 +6,7 @@
   "main": "src/main/main.js",
   "desktopName": "wave.desktop",
   "license": "GPL-3.0-or-later",
-  "author": "Castmorphic <wave@castmorphic.com>",
+  "author": "Castmorphic (https://wave.castmorphic.com)",
   "homepage": "https://wave.castmorphic.com",
   "repository": {
     "type": "git",
