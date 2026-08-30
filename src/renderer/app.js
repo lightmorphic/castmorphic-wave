@@ -22,6 +22,7 @@ const els = {};
   'container-note', 'export-btn', 'progress-area', 'progress-bar-wrap', 'progress-fill',
   'progress-text', 'cancel-btn', 'status-area',
   'update-widget', 'update-widget-version', 'update-dot', 'update-dot-ring-fill',
+  'theme-toggle',
   'analysis-progress', 'analysis-bar', 'analysis-fill', 'analysis-note',
   'export-blocked',
 ].forEach((id) => {
@@ -73,7 +74,7 @@ function setStatus(kind, text, filePath) {
     btn.type = 'button';
     btn.className = 'btn-secondary';
     btn.textContent = 'Show in folder';
-    btn.addEventListener('click', () => window.waveframe.showInFolder(filePath));
+    btn.addEventListener('click', () => window.wave.showInFolder(filePath));
     p.appendChild(btn);
   }
   els.statusArea.appendChild(p);
@@ -101,7 +102,7 @@ function drawBackground() {
 
 async function loadImageFile(file) {
   if (state.exporting) return;
-  const path = window.waveframe.pathForFile(file);
+  const path = window.wave.pathForFile(file);
   const url = URL.createObjectURL(file);
   const img = new Image();
   img.onload = () => {
@@ -166,7 +167,7 @@ function showAnalysisProgress(percent, note) {
 
 async function loadAudioFile(file) {
   if (state.exporting) return;
-  const path = window.waveframe.pathForFile(file);
+  const path = window.wave.pathForFile(file);
   setMsg(els.audioWarning, '');
   setMsg(els.audioInfo, '');
   els.audioName.textContent = '';
@@ -174,7 +175,7 @@ async function loadAudioFile(file) {
   updateExportReadiness();
   showAnalysisProgress(0, 'Opening the file.');
 
-  const probe = await window.waveframe.probeAudio(path);
+  const probe = await window.wave.probeAudio(path);
   if (probe.error) {
     els.analysisProgress.hidden = true;
     setMsg(els.audioWarning, probe.error);
@@ -184,7 +185,7 @@ async function loadAudioFile(file) {
   showAnalysisProgress(0,
     'Reading the audio so the waveform can follow it. The Export button ' +
     'unlocks when this finishes.');
-  const decoded = await window.waveframe.decodeAudio(path, probe.duration || 0);
+  const decoded = await window.wave.decodeAudio(path, probe.duration || 0);
   if (decoded.error) {
     els.analysisProgress.hidden = true;
     setMsg(els.audioWarning, decoded.error);
@@ -407,12 +408,12 @@ function updateContainerNote() {
     note.textContent = probe.mp4Compatible
       ? `Will save as MP4. ${label} audio fits MP4 directly, so it is copied in untouched.`
       : `Will save as MKV. ${label} audio cannot go into an MP4 without re-encoding it, and ` +
-        'Waveframe never touches your audio. YouTube accepts MKV uploads.';
+        'Wave never touches your audio. YouTube accepts MKV uploads.';
   } else if (state.containerChoice === 'mp4' && !probe.mp4Compatible) {
     note.classList.remove('info');
     note.classList.add('warning');
     note.textContent = `${label} audio cannot be put into an MP4 file without re-encoding it, ` +
-      'which would change the sound. Waveframe never re-encodes audio, so this will save as ' +
+      'which would change the sound. Wave never re-encodes audio, so this will save as ' +
       'MKV instead. YouTube accepts MKV uploads.';
   } else if (state.containerChoice === 'mkv' && probe.mp4Compatible) {
     note.textContent = `Will save as MKV. (MP4 would also work for ${label} audio, ` +
@@ -471,8 +472,8 @@ async function runExport() {
   if (!state.image || !state.image.bigEnough || !state.audio || state.exporting) return;
 
   const container = effectiveContainer();
-  const baseName = state.audio.name.replace(/\.[^.]+$/, '') || 'waveframe';
-  const chosen = await window.waveframe.chooseExportPath({ baseName, container });
+  const baseName = state.audio.name.replace(/\.[^.]+$/, '') || 'wave';
+  const chosen = await window.wave.chooseExportPath({ baseName, container });
   if (chosen.canceled || !chosen.filePath) return;
 
   // Make sure the file ends in the right extension for its contents.
@@ -492,7 +493,7 @@ async function runExport() {
   const color = currentColor();
   const style = STYLES.find((s) => s.id === styleId);
 
-  const started = await window.waveframe.exportStart({
+  const started = await window.wave.exportStart({
     imagePath: state.image.path,
     audioPath: state.audio.path,
     outPath,
@@ -528,7 +529,7 @@ async function runExport() {
     ctx.clearRect(0, 0, box.w, box.h);
     style.draw(ctx, box.w, box.h, data, color, t);
     const pixels = ctx.getImageData(0, 0, box.w, box.h);
-    const result = await window.waveframe.exportFrame(
+    const result = await window.wave.exportFrame(
       state.exporting.id, new Uint8Array(pixels.data.buffer),
     );
     if (result.error) {
@@ -549,7 +550,7 @@ async function runExport() {
   }
 
   if (state.exporting.cancelled) {
-    await window.waveframe.exportCancel(state.exporting.id);
+    await window.wave.exportCancel(state.exporting.id);
     finishExport();
     setStatus('info', 'Export cancelled. Nothing was saved.');
     return;
@@ -562,7 +563,7 @@ async function runExport() {
 
   els.progressText.textContent = 'Finishing the video file.';
   els.cancelBtn.disabled = true;
-  const ended = await window.waveframe.exportEnd(state.exporting.id);
+  const ended = await window.wave.exportEnd(state.exporting.id);
   finishExport();
   if (ended.error) {
     setStatus('error', ended.error);
@@ -703,6 +704,28 @@ els.cancelBtn.addEventListener('click', () => {
 });
 
 // ---------------------------------------------------------------------------
+// Theme toggle: one button cycling system → light → dark. The resolving
+// and the persisting live in theme.js; this is only the control.
+// ---------------------------------------------------------------------------
+
+const THEME_LABELS = {
+  system: 'Matching your desktop — click for light',
+  light: 'Light — click for dark',
+  dark: 'Dark — click to match your desktop',
+};
+
+function paintThemeToggle(preference) {
+  els.themeToggle.dataset.preference = preference;
+  const label = THEME_LABELS[preference];
+  els.themeToggle.title = label;
+  els.themeToggle.setAttribute('aria-label', label);
+}
+
+window.WFTheme.onChange(paintThemeToggle);
+paintThemeToggle(window.WFTheme.preference);
+els.themeToggle.addEventListener('click', () => window.WFTheme.cycle());
+
+// ---------------------------------------------------------------------------
 // Update status widget: one dot, five states, no separate banner.
 // See the update-widget skill for the full state spec this implements.
 // ---------------------------------------------------------------------------
@@ -712,19 +735,24 @@ const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
 els.updateDotRingFill.style.strokeDasharray = String(RING_CIRCUMFERENCE);
 
 const UPDATE_DOT_LABELS = {
-  current: 'Up to date',
+  current: 'Up to date — click to check again',
+  checking: 'Checking for an update',
   available: 'Update available — click to download',
   downloading: 'Downloading the update',
-  downloaded: 'Click to restart the app',
-  error: "Can't connect to GitHub",
+  downloaded: 'Update ready — click to restart the app',
+  error: "Can't connect to GitHub — click to try again",
 };
+
+// The two states that are the app working, not the user's turn.
+const INERT_STATES = ['checking', 'downloading'];
 
 let updateState = null;
 
 function setUpdateDot(state, overrideLabel) {
   updateState = state;
   els.updateDot.dataset.state = state;
-  els.updateDot.disabled = state !== 'available' && state !== 'downloaded';
+  // aria-disabled rather than disabled: see the cursor note in style.css.
+  els.updateDot.setAttribute('aria-disabled', String(INERT_STATES.includes(state)));
   const label = overrideLabel || UPDATE_DOT_LABELS[state] || '';
   els.updateDot.title = label;
   els.updateDot.setAttribute('aria-label', label);
@@ -735,7 +763,7 @@ function setRingProgress(fraction) {
   els.updateDotRingFill.style.strokeDashoffset = String(offset);
 }
 
-window.waveframe.onAnalysisProgress(({ percent }) => {
+window.wave.onAnalysisProgress(({ percent }) => {
   if (!els.analysisProgress.hidden) {
     showAnalysisProgress(percent,
       `Reading the audio so the waveform can follow it, ${percent}%. ` +
@@ -745,11 +773,11 @@ window.waveframe.onAnalysisProgress(({ percent }) => {
 
 // The label always shows the version actually running, not the one being
 // downloaded — it only changes again after a real restart.
-window.waveframe.appInfo().then(({ version }) => {
+window.wave.appInfo().then(({ version }) => {
   els.updateWidgetVersion.textContent = `v${version}`;
 });
 
-window.waveframe.onUpdateState((state) => {
+function applyUpdateState(state) {
   if (state.status === 'none') {
     setUpdateDot('current');
   } else if (state.status === 'available') {
@@ -763,18 +791,54 @@ window.waveframe.onUpdateState((state) => {
     // Red interrupts whatever the dot was showing, including mid-download.
     setUpdateDot('error');
   }
+}
+
+// A check often answers in well under a second. Holding the result until
+// both pulses have run means the click always produces the same visible
+// beat, rather than a flicker on a fast connection and a pause on a slow
+// one. Two pulses of 0.55s, matching the keyframes in style.css.
+const CHECK_PULSE_MS = 1100;
+let checking = false;
+let queuedState = null;
+
+async function runManualCheck() {
+  checking = true;
+  queuedState = null;
+  setUpdateDot('checking');
+
+  const pulsesDone = new Promise((resolve) => setTimeout(resolve, CHECK_PULSE_MS));
+  const result = await window.wave.updateCheck();
+  await pulsesDone;
+
+  checking = false;
+  if (queuedState) {
+    applyUpdateState(queuedState);
+    queuedState = null;
+  } else {
+    // No answer came back at all — the check itself could not run.
+    setUpdateDot(result && result.error ? 'error' : 'current');
+  }
+}
+
+window.wave.onUpdateState((state) => {
+  // Mid-check the dot belongs to the pulse; the answer waits its turn.
+  if (checking) queuedState = state;
+  else applyUpdateState(state);
   // Nothing to check in a dev run, so the widget stays hidden until the
   // packaged app's first real check result arrives.
   els.updateWidget.hidden = false;
 });
 
 els.updateDot.addEventListener('click', async () => {
-  if (updateState === 'available') {
+  if (checking) return;
+  if (updateState === 'current' || updateState === 'error') {
+    await runManualCheck();
+  } else if (updateState === 'available') {
     setUpdateDot('downloading');
     setRingProgress(0);
-    await window.waveframe.updateDownload();
+    await window.wave.updateDownload();
   } else if (updateState === 'downloaded') {
-    const result = await window.waveframe.updateInstall();
+    const result = await window.wave.updateInstall();
     if (result.error) {
       // Can't restart right now (an export is running). Say why through
       // the dot's own label rather than adding separate UI for it, then

@@ -15,10 +15,13 @@ const ROOT = path.join(__dirname, '..');
 const FIX = path.join(__dirname, 'fixtures');
 const TMP = path.join(__dirname, 'tmp');
 
+// Newest first: dist/ keeps older builds, and readdir order is arbitrary,
+// so picking the first match can silently smoke-test a previous release.
 const appImage = process.argv[2] ||
   fs.readdirSync(path.join(ROOT, 'dist'))
     .filter((f) => f.endsWith('.AppImage'))
-    .map((f) => path.join(ROOT, 'dist', f))[0];
+    .map((f) => path.join(ROOT, 'dist', f))
+    .sort((a, b) => fs.statSync(b).mtimeMs - fs.statSync(a).mtimeMs)[0];
 
 function ffmpeg(args) {
   return new Promise((resolve) => {
@@ -45,12 +48,23 @@ async function audioStreamMd5(file) {
   console.log(`launching ${path.basename(appImage)}`);
   const app = await electron.launch({
     executablePath: appImage,
-    env: { ...process.env, WAVEFRAME_EXPORT_PATH: outBase },
+    env: { ...process.env, WAVE_EXPORT_PATH: outBase },
   });
   const page = await app.firstWindow();
   await page.waitForSelector('#style-grid .style-option');
   console.log('app launched, 20 styles present:',
     (await page.$$eval('.style-option', (b) => b.length)) === 20);
+
+  // Packaged-only wiring: the theme arrives through the preload's command
+  // line, and the update dot only really runs in a packaged app.
+  const chrome = await page.evaluate(() => ({
+    theme: document.documentElement.dataset.theme,
+    preference: window.WFTheme.preference,
+    dotCursor: getComputedStyle(document.getElementById('update-dot')).cursor,
+  }));
+  console.log(`theme applied: ${chrome.theme} (preference ${chrome.preference})`);
+  console.log(`update dot cursor: ${chrome.dotCursor}`);
+  const chromeOk = ['light', 'dark'].includes(chrome.theme) && chrome.dotCursor !== 'not-allowed';
 
   await page.setInputFiles('#image-input', path.join(FIX, 'bg-good.png'));
   await page.waitForFunction(() => document.getElementById('image-name').textContent.includes('✓'));
@@ -65,7 +79,7 @@ async function audioStreamMd5(file) {
   const out = `${outBase}.mp4`;
   const srcMd5 = await audioStreamMd5(path.join(FIX, 'tone.mp3'));
   const outMd5 = await audioStreamMd5(out);
-  const ok = fs.existsSync(out) && srcMd5 && srcMd5 === outMd5;
+  const ok = chromeOk && fs.existsSync(out) && srcMd5 && srcMd5 === outMd5;
   console.log(`export exists: ${fs.existsSync(out)}`);
   console.log(`audio bit-identical: ${srcMd5 === outMd5} (${srcMd5})`);
   process.exit(ok ? 0 : 1);

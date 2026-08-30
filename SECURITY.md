@@ -2,7 +2,7 @@
 
 ## Reporting a problem
 
-If you find a security problem in Waveframe, please email
+If you find a security problem in Wave, please email
 claude@charlie.cx rather than opening a public issue. You will get a
 reply within a week.
 
@@ -11,9 +11,9 @@ reply within a week.
 Only the latest release is supported. If a security fix is needed, it
 ships as a new release and the old one is removed from the Releases page.
 
-## What Waveframe does and does not do
+## What Wave does and does not do
 
-- Waveframe is a local desktop app. Its only network activity is an
+- Wave is a local desktop app. Its only network activity is an
   update check against this repository's GitHub Releases page, at launch
   and every few hours. An update downloads only when you click for it.
   No telemetry, no other connections, no external fonts or scripts.

@@ -5,8 +5,12 @@
   font-display: swap;
 }
 
+/* The light palette is the base; the dark one below overrides it. Which
+   applies is decided by data-theme on <html>, set before the first paint
+   by theme.js — from the user's preference, or from the desktop's own
+   setting when that preference is "system". */
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
   --bg: #ffffff;  --fg: #09090b;
   --panel: #ffffff;  --panel-border: rgba(24, 24, 40, 0.10);
   --border: #e4e4e7;  --muted: #f4f4f5;  --muted-fg: #71717a;
@@ -31,6 +35,7 @@
      per-theme for AA text contrast — the dot is a fill, not text). */
   --update-green: #4bae4f;
   --update-amber: #ffc006;
+  --update-blue: #2295f1;
   --update-red: #f34236;
 
   --radius: 0.875rem;
@@ -38,21 +43,20 @@
   --stage-bg: #101014;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #09090b;  --fg: #fafafa;
-    --panel: #1b1d29;  --panel-border: rgba(255,255,255,.09);
-    --border: #27272a;  --muted: #1c1c1f;  --muted-fg: #a1a1aa;
-    --shadow-panel: 0 1px 2px rgba(0,0,0,.35), 0 8px 24px -16px rgba(0,0,0,.6);
-    --accent-container: #4b3c05;  --on-accent-container: #fde694;
-    --link: #2295f1;
-    --danger: #f34236;   --danger-bg: #350f0c;
-    /* Same yellow confirmation highlight as light mode, in the dark
-       theme's own accent-container pair so the two themes match. */
-    --success: #fde694;  --success-bg: #4b3c05;
-    --warning: #ffc006;  --warning-bg: #382a01;
-    --info: #2295f1;     --info-bg: #072135;
-  }
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #09090b;  --fg: #fafafa;
+  --panel: #1b1d29;  --panel-border: rgba(255,255,255,.09);
+  --border: #27272a;  --muted: #1c1c1f;  --muted-fg: #a1a1aa;
+  --shadow-panel: 0 1px 2px rgba(0,0,0,.35), 0 8px 24px -16px rgba(0,0,0,.6);
+  --accent-container: #4b3c05;  --on-accent-container: #fde694;
+  --link: #2295f1;
+  --danger: #f34236;   --danger-bg: #350f0c;
+  /* Same yellow confirmation highlight as light mode, in the dark
+     theme's own accent-container pair so the two themes match. */
+  --success: #fde694;  --success-bg: #4b3c05;
+  --warning: #ffc006;  --warning-bg: #382a01;
+  --info: #2295f1;     --info-bg: #072135;
 }
 
 * { box-sizing: border-box; }
@@ -102,8 +106,49 @@ body {
 /* Update status widget: app name + running version as one link out to the
    site, immediately followed by the status dot. The dot's colour and
    overlay icon are the whole update UI — see the update-widget skill. */
-.update-widget {
+/* Everything on the right of the header sits in one group, so the theme
+   toggle keeps its place when the update widget is hidden. */
+.header-tools {
   margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+}
+
+/* One small button cycling system → light → dark, in the same idiom as
+   the update dot: the icon is the state, the tooltip is the wording. */
+.theme-toggle {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: none;
+  color: var(--muted-fg);
+  cursor: pointer;
+}
+.theme-toggle:hover {
+  color: var(--fg);
+  background: var(--muted);
+}
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.theme-icon {
+  width: 17px;
+  height: 17px;
+  display: none;
+}
+.theme-toggle[data-preference="system"] #theme-icon-system,
+.theme-toggle[data-preference="light"] #theme-icon-light,
+.theme-toggle[data-preference="dark"] #theme-icon-dark { display: block; }
+
+.update-widget {
   display: inline-flex;
   align-items: center;
   gap: 0.6rem;
@@ -126,9 +171,14 @@ body {
   border: none;
   background: none;
   border-radius: 50%;
-  cursor: default;
   flex-shrink: 0;
+  /* Never `disabled`: Chromium forces cursor:not-allowed on a disabled
+     button, and a no-entry sign over the status dot reads as "something
+     is wrong" rather than "nothing to do here". The states that take no
+     click say so through the cursor and aria-disabled instead. */
+  cursor: pointer;
 }
+.update-dot[aria-disabled="true"] { cursor: default; }
 .update-dot::before {
   /* The solid dot itself; the ring and overlay icons sit above it. */
   content: '';
@@ -138,14 +188,30 @@ body {
   background: var(--muted-fg);
 }
 .update-dot[data-state="current"]::before { background: var(--update-green); }
+.update-dot[data-state="checking"]::before { background: var(--update-green); }
 .update-dot[data-state="available"]::before { background: var(--update-amber); }
-.update-dot[data-state="downloaded"]::before { background: var(--update-green); }
+.update-dot[data-state="downloaded"]::before { background: var(--update-blue); }
 .update-dot[data-state="error"]::before { background: var(--update-red); }
-.update-dot[data-state="available"],
-.update-dot[data-state="downloaded"] {
-  cursor: pointer;
-}
 .update-dot[data-state="downloading"]::before { background: none; }
+
+/* Checking: two pulses ring out of the dot and stop. The dot itself stays
+   green throughout, so the pulse reads as "looking" rather than as a
+   fourth colour to learn. */
+.update-dot[data-state="checking"]::after {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  border: 1.5px solid var(--update-green);
+  animation: update-dot-pulse 0.55s ease-out 2;
+}
+@keyframes update-dot-pulse {
+  from { transform: scale(1);   opacity: 0.9; }
+  to   { transform: scale(2.1); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .update-dot[data-state="checking"]::after { animation: none; }
+}
 
 .update-dot-ring {
   position: absolute;

@@ -79,5 +79,5 @@ jobs:
         run: |
           gh release create "v$VERSION" dist/*.AppImage dist/latest-linux.yml \
             --repo "$GITHUB_REPOSITORY" \
-            --title "Waveframe $VERSION" \
+            --title "Castmorphic Wave $VERSION" \
             --notes-file /tmp/release-notes.md

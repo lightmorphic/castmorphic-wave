@@ -1,74 +1,6 @@
 # Changelog
 
-## [1.0.8] - 2026-08-20
-
-- The whole app now fits the window, so there is no scroll bar down the
-  side of it any more. The preview grows and shrinks with the window
-  instead of being a fixed size, and the twenty style thumbnails sit in
-  three tidy rows whatever size you make it.
-- The waveform colour controls have moved up next to the style picker,
-  where they belong: style and colour are one decision, and the panel
-  they used to sit in was pushing everything else off the bottom.
-- Files you have chosen are now highlighted in Waveframe's yellow rather
-  than green, in both the light and dark themes.
-
-## [1.0.7] - 2026-08-20
-
-- Fixed the app not starting at all on most current Linux systems. If
-  double-clicking Waveframe did nothing, or you saw "AppImages require
-  FUSE to run", that was this: the AppImage needed the old FUSE 2
-  library, which Ubuntu 23.04 and later, current Fedora, openSUSE and
-  the immutable spins (Silverblue, Bazzite) no longer ship. It now uses
-  a self-contained runtime that needs no FUSE at all. Earlier versions
-  cannot update themselves out of this, so download 1.0.7 once from the
-  Releases page.
-
-## [1.0.6] - 2026-08-10
-
-- The update indicator is now a single small dot next to the app name,
-  matching the style used across Lightmorphic's other tools: green when
-  you are current, amber with a download icon when an update is out
-  (click it to fetch), a progress ring while it downloads, then green
-  with a restart icon when it is ready (click to restart). Replaces the
-  separate version pill and banner.
-
-## [1.0.5] - 2026-08-10
-
-- Fixed a crash ("Error: write EPIPE") that could appear while an update
-  was downloading, when the app had been started from a desktop icon
-  rather than a terminal. If version 1.0.4 shows that error box while
-  fetching this update, close the box; if the update then does not
-  finish, download 1.0.5 once from the Releases page and it will not
-  happen again.
-
-## [1.0.4] - 2026-08-10
-
-- The Export button now says why it is locked, right underneath it:
-  which file is still missing, or that the image is below 1920 × 1080
-  (with its actual size). No more guessing whether the app is busy or
-  waiting on you.
-
-## [1.0.3] - 2026-08-09
-
-- Loading an audio file now shows a real progress bar with a note
-  explaining what is happening and that the Export button unlocks when
-  it finishes. Before, long files just sat there looking stuck.
-
-## [1.0.2] - 2026-08-09
-
-- The version number now sits in the top-right corner with a status dot:
-  green when you are on the latest version, amber when an update is
-  waiting, grey while checking. Hover it for the state in words.
-
-## [1.0.1] - 2026-08-09
-
-- Waveframe now updates itself. It quietly checks GitHub for a newer
-  release at launch and every few hours; if one exists, a banner offers
-  it. Nothing downloads until you choose, and the update installs when
-  the app restarts. (Installs of 1.0.0 predate this and need one last
-  manual download.)
-
-## [1.0.0] - 2026-08-09
+## [1.0.0] - 2026-08-30
 
 First release.
 
@@ -82,4 +14,9 @@ First release.
   MP3/AAC, MKV otherwise) with a plain-language warning if a manual MP4
   choice would force a re-encode; the compatible container is used instead.
 - Video duration matches the audio exactly.
+- A light/dark switch at the top right, cycling between matching your
+  desktop, always light and always dark, remembering what you chose.
+- An update dot next to the app name: green when up to date and clickable
+  to check again, amber when there is an update, a ring that fills while
+  it downloads, and blue when it is ready to restart.
 - Packaged as a Linux AppImage with FFmpeg bundled.
