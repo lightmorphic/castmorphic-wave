@@ -3,7 +3,7 @@
 ## Reporting a problem
 
 If you find a security problem in Wave, please email
-claude@charlie.cx rather than opening a public issue. You will get a
+wave@castmorphic.com rather than opening a public issue. You will get a
 reply within a week.
 
 ## Supported versions
