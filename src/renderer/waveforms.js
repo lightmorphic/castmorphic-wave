@@ -9,7 +9,7 @@
 
 function hexToRgb(hex) {
   const m = /^#?([0-9a-f]{6})$/i.exec(hex.trim());
-  const n = m ? parseInt(m[1], 16) : 0xfbc711;
+  const n = m ? parseInt(m[1], 16) : 0xff5721;
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
 }
 

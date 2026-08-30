@@ -15,7 +15,7 @@ const DRAW = `
   ctx.roundRect(16, 16, 480, 480, 104);
   ctx.fillStyle = '#111827';
   ctx.fill();
-  ctx.fillStyle = '#FBC711';
+  ctx.fillStyle = '#FF5721';
   const bars = [
     [92, 212, 88], [164, 148, 216], [236, 96, 320], [308, 168, 176], [380, 224, 64],
   ];
