@@ -55,16 +55,14 @@ async function audioStreamMd5(file) {
   console.log('app launched, 20 styles present:',
     (await page.$$eval('.style-option', (b) => b.length)) === 20);
 
-  // Packaged-only wiring: the theme arrives through the preload's command
-  // line, and the update dot only really runs in a packaged app.
+  // Packaged-only wiring: the update dot only really runs in a packaged app.
   const chrome = await page.evaluate(() => ({
-    theme: document.documentElement.dataset.theme,
-    preference: window.WFTheme.preference,
+    bg: getComputedStyle(document.body).backgroundColor,
     dotCursor: getComputedStyle(document.getElementById('update-dot')).cursor,
   }));
-  console.log(`theme applied: ${chrome.theme} (preference ${chrome.preference})`);
+  console.log(`body background: ${chrome.bg}`);
   console.log(`update dot cursor: ${chrome.dotCursor}`);
-  const chromeOk = ['light', 'dark'].includes(chrome.theme) && chrome.dotCursor !== 'not-allowed';
+  const chromeOk = chrome.bg === 'rgb(9, 9, 11)' && chrome.dotCursor !== 'not-allowed';
 
   await page.setInputFiles('#image-input', path.join(FIX, 'bg-good.png'));
   await page.waitForFunction(() => document.getElementById('image-name').textContent.includes('✓'));

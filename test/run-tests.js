@@ -167,78 +167,6 @@ async function smallImageCase() {
   }
 }
 
-// The theme toggle: cycles, repaints, persists, and does not push the
-// layout past the bottom of the window at any supported size.
-async function themeCase() {
-  console.log('\ncase: theme toggle cycles, persists, and keeps the app scroll-free');
-  const { app, page } = await launchApp('');
-  try {
-    const read = () => page.evaluate(() => ({
-      preference: window.WFTheme.preference,
-      resolved: window.WFTheme.resolved,
-      applied: document.documentElement.dataset.theme,
-      icon: document.getElementById('theme-toggle').dataset.preference,
-    }));
-
-    const start = await read();
-    check('starts on the desktop setting', start.preference === 'system', start.preference);
-    check('a concrete theme is applied before anything is clicked',
-      start.applied === start.resolved && ['light', 'dark'].includes(start.applied),
-      JSON.stringify(start));
-
-    await page.click('#theme-toggle');
-    const light = await read();
-    check('first click gives light', light.preference === 'light' && light.applied === 'light',
-      JSON.stringify(light));
-    check('the icon follows the preference', light.icon === 'light', light.icon);
-    const lightBg = await page.evaluate(() =>
-      getComputedStyle(document.body).backgroundColor);
-    check('light really repaints the page', lightBg === 'rgb(255, 255, 255)', lightBg);
-
-    await page.click('#theme-toggle');
-    const dark = await read();
-    check('second click gives dark', dark.preference === 'dark' && dark.applied === 'dark',
-      JSON.stringify(dark));
-    const darkBg = await page.evaluate(() =>
-      getComputedStyle(document.body).backgroundColor);
-    check('dark really repaints the page', darkBg === 'rgb(9, 9, 11)', darkBg);
-
-    // The preference reaches disk, which is what makes it survive a restart.
-    const userData = await app.evaluate(({ app: electronApp }) => electronApp.getPath('userData'));
-    const prefsFile = path.join(userData, 'prefs.json');
-    await page.waitForTimeout(200);
-    let saved = {};
-    try { saved = JSON.parse(fs.readFileSync(prefsFile, 'utf8')); } catch { /* reported below */ }
-    check('the preference is written to prefs.json', saved.theme === 'dark', JSON.stringify(saved));
-
-    await page.click('#theme-toggle');
-    const back = await read();
-    check('third click returns to the desktop setting', back.preference === 'system', back.preference);
-
-    // A new header control changes the header's height, so the no-scroll
-    // rule has to be re-checked at every supported size, in both themes.
-    for (const theme of ['light', 'dark']) {
-      await page.evaluate((t) => window.WFTheme.set(t), theme);
-      for (const [w, h] of [[1440, 940], [1280, 800], [1080, 720]]) {
-        await app.evaluate(({ BrowserWindow }, size) => {
-          BrowserWindow.getAllWindows()[0].setContentSize(size[0], size[1]);
-        }, [w, h]);
-        await page.waitForTimeout(250);
-        const overflow = await page.evaluate(() =>
-          document.documentElement.scrollHeight - document.documentElement.clientHeight);
-        check(`no scroll bar in ${theme} at ${w}x${h}`, overflow <= 0, `overflow ${overflow}px`);
-      }
-    }
-
-    // These runs share the real app's preference file, so leave the
-    // setting as it was found rather than on whatever was tested last.
-    await page.evaluate(() => window.WFTheme.set('system'));
-    await page.waitForTimeout(200);
-  } finally {
-    await app.close();
-  }
-}
-
 // The update dot, driven exactly as the real updater drives it: by
 // pushing 'update-state' from the main process into the window.
 async function updateDotCase() {
@@ -397,7 +325,6 @@ async function boxAndPreviewCase() {
 (async () => {
   makeFixtures();
 
-  await themeCase();
   await updateDotCase();
   await boxAndPreviewCase();
   await smallImageCase();

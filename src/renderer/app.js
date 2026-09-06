@@ -22,7 +22,6 @@ const els = {};
   'container-note', 'export-btn', 'progress-area', 'progress-bar-wrap', 'progress-fill',
   'progress-text', 'cancel-btn', 'status-area',
   'update-widget', 'update-widget-version', 'update-dot', 'update-dot-ring-fill',
-  'theme-toggle',
   'analysis-progress', 'analysis-bar', 'analysis-fill', 'analysis-note',
   'export-blocked',
 ].forEach((id) => {
@@ -702,28 +701,6 @@ els.cancelBtn.addEventListener('click', () => {
     els.cancelBtn.disabled = true;
   }
 });
-
-// ---------------------------------------------------------------------------
-// Theme toggle: one button cycling system → light → dark. The resolving
-// and the persisting live in theme.js; this is only the control.
-// ---------------------------------------------------------------------------
-
-const THEME_LABELS = {
-  system: 'Matching your desktop — click for light',
-  light: 'Light — click for dark',
-  dark: 'Dark — click to match your desktop',
-};
-
-function paintThemeToggle(preference) {
-  els.themeToggle.dataset.preference = preference;
-  const label = THEME_LABELS[preference];
-  els.themeToggle.title = label;
-  els.themeToggle.setAttribute('aria-label', label);
-}
-
-window.WFTheme.onChange(paintThemeToggle);
-paintThemeToggle(window.WFTheme.preference);
-els.themeToggle.addEventListener('click', () => window.WFTheme.cycle());
 
 // ---------------------------------------------------------------------------
 // Update status widget: one dot, five states, no separate banner.

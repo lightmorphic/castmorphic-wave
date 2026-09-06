@@ -1,6 +1,6 @@
 'use strict';
 
-const { app, BrowserWindow, dialog, ipcMain, nativeTheme, shell } = require('electron');
+const { app, BrowserWindow, dialog, ipcMain, shell } = require('electron');
 const { autoUpdater } = require('electron-updater');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -35,44 +35,9 @@ function friendly(err) {
 
 let mainWindow = null;
 
-// ---------------------------------------------------------------------------
-// Preferences: one small JSON file in the user data directory. The theme is
-// the only thing in it, and a missing or corrupt file simply means defaults.
-// ---------------------------------------------------------------------------
-
-const THEMES = ['system', 'light', 'dark'];
-
-function prefsPath() {
-  return path.join(app.getPath('userData'), 'prefs.json');
-}
-
-function readPrefs() {
-  try {
-    const parsed = JSON.parse(fs.readFileSync(prefsPath(), 'utf8'));
-    return { theme: THEMES.includes(parsed.theme) ? parsed.theme : 'system' };
-  } catch {
-    return { theme: 'system' };
-  }
-}
-
-function writePrefs(prefs) {
-  try {
-    fs.writeFileSync(prefsPath(), JSON.stringify(prefs, null, 2));
-  } catch {
-    // Losing the preference until next time is not worth an error dialog.
-  }
-}
-
-let prefs = { theme: 'system' };
-
 // One export can run at a time.
 let currentExport = null;
 let exportCounter = 0;
-
-function resolvedTheme() {
-  if (prefs.theme !== 'system') return prefs.theme;
-  return nativeTheme.shouldUseDarkColors ? 'dark' : 'light';
-}
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -80,14 +45,11 @@ function createWindow() {
     height: 940,
     minWidth: 1080,
     minHeight: 720,
-    backgroundColor: resolvedTheme() === 'dark' ? '#09090b' : '#ffffff',
+    backgroundColor: '#09090b',
     title: 'Castmorphic Wave',
     icon: path.join(__dirname, '..', '..', 'assets', 'icon.png'),
     webPreferences: {
       preload: path.join(__dirname, '..', 'preload.js'),
-      // The renderer needs the stored theme synchronously, before its
-      // first paint, so it travels as an argument rather than over IPC.
-      additionalArguments: [`--wf-theme=${prefs.theme}`],
       contextIsolation: true,
       sandbox: true,
       nodeIntegration: false,
@@ -133,8 +95,6 @@ function setupUpdates() {
 }
 
 app.whenReady().then(() => {
-  prefs = readPrefs();
-  nativeTheme.themeSource = prefs.theme;
   createWindow();
   setupUpdates();
 });
@@ -147,16 +107,6 @@ app.on('window-all-closed', () => {
 // ---------------------------------------------------------------------------
 // IPC: every handler validates its inputs before touching the filesystem.
 // ---------------------------------------------------------------------------
-
-ipcMain.handle('set-theme', (event, theme) => {
-  if (!THEMES.includes(theme)) return { error: 'unknown theme' };
-  prefs = { ...prefs, theme };
-  writePrefs(prefs);
-  // Keeps the next launch's window background right, and matches any
-  // native chrome to what the page is showing.
-  nativeTheme.themeSource = theme;
-  return { theme };
-});
 
 ipcMain.handle('probe-audio', async (event, filePath) => {
   if (!isSupportedMediaFile(filePath, AUDIO_EXTENSIONS)) {

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Accessibility | Castmorphic Wave</title>
+<meta name="description" content="How accessible the Castmorphic Wave website and application are, what has been tested, and how to tell us about a barrier.">
+<link rel="canonical" href="https://wave.castmorphic.com/accessibility.html">
+<link rel="icon" href="images/wave-icon.png" type="image/png">
+<meta name="theme-color" content="#09090b">
+<link rel="preload" href="fonts/Manrope-VariableFont_wght.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<a class="skip-link" href="#content">Skip to content</a>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a class="brand" href="/">
+      <svg viewBox="0 0 48 48" width="34" height="34" aria-hidden="true">
+        <rect x="2" y="2" width="44" height="44" rx="10" fill="#111827"/>
+        <g fill="#FF5721">
+          <rect x="9"  y="20" width="4" height="8"  rx="2"/>
+          <rect x="16" y="14" width="4" height="20" rx="2"/>
+          <rect x="23" y="9"  width="4" height="30" rx="2"/>
+          <rect x="30" y="16" width="4" height="16" rx="2"/>
+          <rect x="37" y="21" width="4" height="6"  rx="2"/>
+        </g>
+      </svg>
+      <span>Castmorphic Wave</span>
+    </a>
+    <nav aria-label="Main">
+      <a href="/">Home</a>
+      <div id="all-apps"></div>
+    </nav>
+  </div>
+</header>
+
+<main id="content" class="legal-page">
+  <h1>Accessibility</h1>
+  <p>We want this site and this app to work for everyone, including people
+  using a keyboard alone, a screen reader, or a magnified display.</p>
+
+  <h2>The website</h2>
+  <p>The site aims to meet WCAG 2.2 at level AA. It is plain HTML with no
+  JavaScript needed to read it, so the whole page is there whatever you use to
+  view it.</p>
+  <p>Checked and working: every text and background pair meets AA contrast, the
+  page has one main heading with a sensible order below it, there is a skip
+  link to the content, every control shows a visible focus outline when tabbed
+  to, and every image has a description.</p>
+  <p>The site is dark only, by design. There is no light mode.</p>
+
+  <h2>The application</h2>
+  <p>The waveform box can be moved and resized with the arrow keys as well as
+  the mouse, and every control can be reached by tab. Buttons carry text
+  labels, not icons alone, and the update indicator states its meaning in
+  words as well as colour.</p>
+  <p>Known limits: the animated style previews cannot currently be paused, and
+  the preview area is visual by nature, so it does not convey its content to a
+  screen reader.</p>
+
+  <h2>Telling us about a problem</h2>
+  <p>If something here blocks you, tell us and we will fix it. Write to
+  <a href="mailto:complaints@lightmorphic.com">complaints@lightmorphic.com</a>
+  saying what you were trying to do and what stopped you. We reply within a
+  week.</p>
+</main>
+
+<footer class="site-footer">
+  <div class="legal-subfooter">
+    <p>&copy; Lightmorphic Ltd. Registered in England and Wales, company number
+    <a href="https://find-and-update.company-information.service.gov.uk/company/17423646">17423646</a>.<br>
+    Registered office: 82A James Carter Road, Mildenhall, IP28 7DE.<br>
+    Page last updated: <time datetime="2026-09-06">6 September 2026</time>.</p>
+    <nav class="legal-links" aria-label="Legal">
+      <a href="privacy.html">Privacy</a>
+      <a href="cookies.html">Cookies</a>
+      <a href="terms.html">Terms</a>
+      <a href="accessibility.html">Accessibility</a>
+      <a href="complaints.html">Complaints</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="https://apps.lightmorphic.com/launcher.js" defer></script>
+
+</body>
+</html>

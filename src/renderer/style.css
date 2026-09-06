@@ -5,34 +5,28 @@
   font-display: swap;
 }
 
-/* The light palette is the base; the dark one below overrides it. Which
-   applies is decided by data-theme on <html>, set before the first paint
-   by theme.js — from the user's preference, or from the desktop's own
-   setting when that preference is "system". */
+/* Dark only. There is no light theme and no switcher: the app is dark
+   as standard, so these are the only values there are. */
 :root {
-  color-scheme: light;
-  --bg: #ffffff;  --fg: #09090b;
-  --panel: #ffffff;  --panel-border: rgba(24, 24, 40, 0.10);
-  --border: #e4e4e7;  --muted: #f4f4f5;  --muted-fg: #71717a;
-  --shadow-panel: 0 1px 2px rgba(24,24,40,.05), 0 8px 24px -16px rgba(24,24,40,.18);
+  color-scheme: dark;
+  --bg: #09090b;  --fg: #fafafa;
+  --panel: #1b1d29;  --panel-border: rgba(255,255,255,.09);
+  --border: #27272a;  --muted: #1c1c1f;  --muted-fg: #a1a1aa;
+  --shadow-panel: 0 1px 2px rgba(0,0,0,.35), 0 8px 24px -16px rgba(0,0,0,.6);
 
-  --accent: #ff5721;  --accent-hover: #e04d1d;  --on-accent: #471809;
-  --accent-container: #ffebe4;  --on-accent-container: #61210d;
+  --accent: #ff5721;  --accent-hover: #ff6b3c;  --on-accent: #471809;
+  --accent-container: #4d1a0a;  --on-accent-container: #ffb39b;
 
   --brand-navy: #111827;
-  --link: #c4400f;
-  --danger: #cc372d;   --danger-bg: #fef2f1;
-  /* Light mode confirms in the brand orange rather than green. Flat
-     #ff5721 is unreadable as text on white, so the text is the deep
-     rust from the accent container and the accent itself carries the
-     colour as a rule down the side of the message. 10.6:1. */
-  --success: #61210d;  --success-bg: #ffebe4;
-  --warning: #8f6c03;  --warning-bg: #fffbee;
-  --info: #1b74bc;     --info-bg: #f0f8fe;
+  --link: #ff8f68;
+  --danger: #f34236;   --danger-bg: #350f0c;
+  /* Confirmations use the brand orange rather than green, in the accent
+     container pair so the colour reads as the app's own. 8.3:1. */
+  --success: #ffb39b;  --success-bg: #4d1a0a;
+  --warning: #ffc006;  --warning-bg: #382a01;
+  --info: #2295f1;     --info-bg: #072135;
 
-  /* Update-widget dot: the exact Lightmorphic palette hues, fixed in
-     both themes (unlike --success/--warning above, which are darkened
-     per-theme for AA text contrast — the dot is a fill, not text). */
+  /* Update-widget dot: the exact Lightmorphic palette hues. */
   --update-green: #4bae4f;
   --update-amber: #ffc006;
   --update-blue: #2295f1;
@@ -41,23 +35,6 @@
   --radius: 0.875rem;
   --panel-radius: 1.375rem;
   --stage-bg: #101014;
-}
-
-:root[data-theme="dark"] {
-  color-scheme: dark;
-  --bg: #09090b;  --fg: #fafafa;
-  --panel: #1b1d29;  --panel-border: rgba(255,255,255,.09);
-  --border: #27272a;  --muted: #1c1c1f;  --muted-fg: #a1a1aa;
-  --shadow-panel: 0 1px 2px rgba(0,0,0,.35), 0 8px 24px -16px rgba(0,0,0,.6);
-  --accent-container: #4d1a0a;  --on-accent-container: #ffb39b;
-  --accent-hover: #ff6b3c;
-  --link: #ff8f68;
-  --danger: #f34236;   --danger-bg: #350f0c;
-  /* Same orange confirmation highlight as light mode, in the dark
-     theme's own accent-container pair so the two themes match. 8.3:1. */
-  --success: #ffb39b;  --success-bg: #4d1a0a;
-  --warning: #ffc006;  --warning-bg: #382a01;
-  --info: #2295f1;     --info-bg: #072135;
 }
 
 * { box-sizing: border-box; }
@@ -107,47 +84,13 @@ body {
 /* Update status widget: app name + running version as one link out to the
    site, immediately followed by the status dot. The dot's colour and
    overlay icon are the whole update UI — see the update-widget skill. */
-/* Everything on the right of the header sits in one group, so the theme
-   toggle keeps its place when the update widget is hidden. */
+/* The right-hand end of the header. */
 .header-tools {
   margin-left: auto;
   display: flex;
   align-items: center;
   gap: 0.875rem;
 }
-
-/* One small button cycling system → light → dark, in the same idiom as
-   the update dot: the icon is the state, the tooltip is the wording. */
-.theme-toggle {
-  width: 30px;
-  height: 30px;
-  padding: 0;
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid var(--border);
-  border-radius: 50%;
-  background: none;
-  color: var(--muted-fg);
-  cursor: pointer;
-}
-.theme-toggle:hover {
-  color: var(--fg);
-  background: var(--muted);
-}
-.theme-toggle:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
-.theme-icon {
-  width: 17px;
-  height: 17px;
-  display: none;
-}
-.theme-toggle[data-preference="system"] #theme-icon-system,
-.theme-toggle[data-preference="light"] #theme-icon-light,
-.theme-toggle[data-preference="dark"] #theme-icon-dark { display: block; }
 
 .update-widget {
   display: inline-flex;
